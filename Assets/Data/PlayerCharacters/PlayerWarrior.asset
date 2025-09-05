@@ -1,0 +1,25 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0}
+  m_Name: PlayerWarrior
+  type: 0
+  displayName: ダンジョン戦士
+  description: ダンジョンを守る戦士。バランスの取れた能力でダンジョンコアを守る。
+  baseHealth: 200
+  baseMana: 80
+  baseAttackPower: 30
+  moveSpeed: 2.5
+  abilities: [0, 4]
+  prefab: {fileID: 0}
+  icon: {fileID: 0}
+  portrait: {fileID: 0}
+  characterColor: {r: 0.8, g: 0.2, b: 0.2, a: 1}

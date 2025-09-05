@@ -1,0 +1,29 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0}
+  m_Name: LesserWolf
+  type: 5
+  rarity: 0
+  displayName: レッサーウルフ
+  description: 野生の狼。高い移動速度を持つ。
+  goldCost: 100
+  baseHealth: 90
+  baseMana: 30
+  baseAttackPower: 20
+  moveSpeed: 4
+  abilityType: 5
+  abilityDescription: 非常に高い移動速度を持つ
+  unlockFloor: 1
+  evolutionTargets: [11]
+  prefab: {fileID: 0}
+  icon: {fileID: 0}
+  rarityColor: {r: 0.8, g: 0.6, b: 0.4, a: 1}

@@ -1,0 +1,29 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0}
+  m_Name: Goblin
+  type: 4
+  rarity: 0
+  displayName: ゴブリン
+  description: 小柄だが素早い攻撃を得意とするモンスター。
+  goldCost: 70
+  baseHealth: 60
+  baseMana: 40
+  baseAttackPower: 22
+  moveSpeed: 3
+  abilityType: 4
+  abilityDescription: 高速で連続攻撃を行う
+  unlockFloor: 1
+  evolutionTargets: [10]
+  prefab: {fileID: 0}
+  icon: {fileID: 0}
+  rarityColor: {r: 0.6, g: 1, b: 0.6, a: 1}

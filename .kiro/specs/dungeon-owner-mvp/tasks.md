@@ -12,7 +12,7 @@
   - ScriptableObjectベースのデータ駆動アーキテクチャの構築
   - _要件: 1.1, 8.1, 14.1_
 
-- [ ] 2. 基本データモデルとScriptableObjectの実装
+- [x] 2. 基本データモデルとScriptableObjectの実装
   - MonsterData、InvaderData、PlayerCharacterDataのScriptableObject作成
   - 初期モンスター（スライム、スケルトン等）のデータ定義
   - 基本侵入者（戦士、魔法使い等）のデータ定義

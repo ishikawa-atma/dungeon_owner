@@ -1,0 +1,29 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0}
+  m_Name: LesserGolem
+  type: 3
+  rarity: 1
+  displayName: レッサーゴーレム
+  description: 石でできた巨大なモンスター。非常に高い防御力を持つ。
+  goldCost: 150
+  baseHealth: 200
+  baseMana: 10
+  baseAttackPower: 25
+  moveSpeed: 1
+  abilityType: 3
+  abilityDescription: 高い防御力でダメージを軽減する
+  unlockFloor: 1
+  evolutionTargets: [9]
+  prefab: {fileID: 0}
+  icon: {fileID: 0}
+  rarityColor: {r: 1, g: 0.8, b: 0.6, a: 1}

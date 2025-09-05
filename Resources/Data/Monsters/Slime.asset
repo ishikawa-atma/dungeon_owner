@@ -1,0 +1,29 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0}
+  m_Name: Slime
+  type: 0
+  rarity: 0
+  displayName: スライム
+  description: 基本的なモンスター。自動で体力を回復する能力を持つ。
+  goldCost: 50
+  baseHealth: 80
+  baseMana: 30
+  baseAttackPower: 15
+  moveSpeed: 1.5
+  abilityType: 1
+  abilityDescription: 時間経過で自動的に体力を回復する
+  unlockFloor: 1
+  evolutionTargets: [6]
+  prefab: {fileID: 0}
+  icon: {fileID: 0}
+  rarityColor: {r: 0.8, g: 1, b: 0.8, a: 1}
