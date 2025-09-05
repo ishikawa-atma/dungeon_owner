@@ -258,6 +258,9 @@ namespace DungeonOwner.Core
                 ResourceManager.Instance.ProcessInvaderDefeatReward(invader);
             }
 
+            // 罠アイテムドロップ処理（要件13.1: 侵入者撃破時の低確率ドロップ）
+            ProcessTrapItemDrop(invader);
+
             // InvaderSpawnerに撃破通知
             if (InvaderSpawner.Instance != null)
             {
@@ -269,6 +272,18 @@ namespace DungeonOwner.Core
             }
 
             Debug.Log($"Invader {invader.Type} (Lv.{invader.Level}) defeated!");
+        }
+
+        /// <summary>
+        /// 罠アイテムドロップ処理
+        /// 要件13.1: 侵入者を撃破すると低確率で罠アイテムをドロップ
+        /// </summary>
+        private void ProcessTrapItemDrop(IInvader invader)
+        {
+            if (TrapItemDropManager.Instance != null)
+            {
+                TrapItemDropManager.Instance.ProcessDrop(invader);
+            }
         }
 
         /// <summary>

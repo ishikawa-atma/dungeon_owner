@@ -1,6 +1,8 @@
 using UnityEngine;
 using System.Collections.Generic;
 using System.Linq;
+using Scripts.Data.ScriptableObjects;
+using Scripts.Data.Enums;
 
 namespace DungeonOwner.Data
 {
@@ -15,6 +17,7 @@ namespace DungeonOwner.Data
         [SerializeField] private List<MonsterData> monsterDatabase = new List<MonsterData>();
         [SerializeField] private List<InvaderData> invaderDatabase = new List<InvaderData>();
         [SerializeField] private List<PlayerCharacterData> playerCharacterDatabase = new List<PlayerCharacterData>();
+        [SerializeField] private List<TrapItemData> trapItemDatabase = new List<TrapItemData>();
 
         public GameConfig Config => gameConfig;
 
@@ -53,7 +56,11 @@ namespace DungeonOwner.Data
             PlayerCharacterData[] characters = Resources.LoadAll<PlayerCharacterData>("Data/PlayerCharacters");
             playerCharacterDatabase.AddRange(characters);
 
-            Debug.Log($"Loaded {monsterDatabase.Count} monsters, {invaderDatabase.Count} invaders, {playerCharacterDatabase.Count} player characters");
+            // TrapItemDataをロード
+            TrapItemData[] trapItems = Resources.LoadAll<TrapItemData>("Data/TrapItems");
+            trapItemDatabase.AddRange(trapItems);
+
+            Debug.Log($"Loaded {monsterDatabase.Count} monsters, {invaderDatabase.Count} invaders, {playerCharacterDatabase.Count} player characters, {trapItemDatabase.Count} trap items");
         }
 
         private void ValidateData()
@@ -76,6 +83,11 @@ namespace DungeonOwner.Data
             if (playerCharacterDatabase.Count == 0)
             {
                 Debug.LogWarning("No player character data loaded!");
+            }
+
+            if (trapItemDatabase.Count == 0)
+            {
+                Debug.LogWarning("No trap item data loaded!");
             }
         }
 
@@ -137,6 +149,23 @@ namespace DungeonOwner.Data
             if (availableMonsters.Count == 0) return null;
 
             return availableMonsters[Random.Range(0, availableMonsters.Count)];
+        }
+
+        // 罠アイテムデータ取得
+        public TrapItemData GetTrapItemData(TrapItemType type)
+        {
+            return trapItemDatabase.FirstOrDefault(t => t.type == type);
+        }
+
+        public List<TrapItemData> GetAllTrapItems()
+        {
+            return new List<TrapItemData>(trapItemDatabase);
+        }
+
+        public TrapItemData GetRandomTrapItem()
+        {
+            if (trapItemDatabase.Count == 0) return null;
+            return trapItemDatabase[Random.Range(0, trapItemDatabase.Count)];
         }
     }
 }
