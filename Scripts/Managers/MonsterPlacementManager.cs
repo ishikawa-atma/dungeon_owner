@@ -198,6 +198,101 @@ namespace DungeonOwner.Managers
             return true;
         }
 
+        /// <summary>
+        /// 退避スポットシステム用: モンスターを階層から除去（オブジェクトは破棄しない）
+        /// </summary>
+        public bool RemoveMonster(IMonster monster)
+        {
+            if (monster == null)
+            {
+                return false;
+            }
+
+            GameObject monsterObj = (monster as MonoBehaviour)?.gameObject;
+            if (monsterObj == null)
+            {
+                return false;
+            }
+
+            // どの階層にいるかを検索
+            int floorIndex = -1;
+            foreach (var kvp in floorMonsters)
+            {
+                if (kvp.Value.Contains(monster))
+                {
+                    floorIndex = kvp.Key;
+                    break;
+                }
+            }
+
+            if (floorIndex == -1)
+            {
+                Debug.LogWarning("Monster not found in any floor");
+                return false;
+            }
+
+            // 階層システムから除去
+            FloorSystem.Instance.RemoveMonster(floorIndex, monsterObj);
+
+            // 内部管理から除去
+            floorMonsters[floorIndex].Remove(monster);
+
+            // イベント発火（オブジェクトは破棄しない）
+            OnMonsterRemoved?.Invoke(monster, floorIndex);
+            OnFloorMonsterCountChanged?.Invoke(floorIndex, GetMonsterCountOnFloor(floorIndex));
+
+            Debug.Log($"Removed monster from floor {floorIndex} (for shelter)");
+            return true;
+        }
+
+        /// <summary>
+        /// 退避スポットシステム用: モンスターを階層に配置（既存オブジェクトを使用）
+        /// </summary>
+        public bool PlaceMonster(IMonster monster, int floorIndex, Vector2 position)
+        {
+            if (monster == null)
+            {
+                return false;
+            }
+
+            GameObject monsterObj = (monster as MonoBehaviour)?.gameObject;
+            if (monsterObj == null)
+            {
+                return false;
+            }
+
+            // 配置可能かチェック
+            if (!CanPlaceMonster(floorIndex, position, monster.Type))
+            {
+                return false;
+            }
+
+            // 位置を設定
+            monsterObj.transform.position = new Vector3(position.x, position.y, 0);
+            monster.Position = position;
+
+            // 階層システムに登録
+            if (!FloorSystem.Instance.PlaceMonster(floorIndex, monsterObj, position))
+            {
+                Debug.LogError($"Failed to place monster in FloorSystem");
+                return false;
+            }
+
+            // 内部管理に追加
+            if (!floorMonsters.ContainsKey(floorIndex))
+            {
+                floorMonsters[floorIndex] = new List<IMonster>();
+            }
+            floorMonsters[floorIndex].Add(monster);
+
+            // イベント発火
+            OnMonsterPlaced?.Invoke(monster, floorIndex);
+            OnFloorMonsterCountChanged?.Invoke(floorIndex, GetMonsterCountOnFloor(floorIndex));
+
+            Debug.Log($"Placed monster {monster.Type} on floor {floorIndex} at {position} (from shelter)");
+            return true;
+        }
+
         public bool MoveMonster(IMonster monster, int fromFloor, int toFloor, Vector2 newPosition)
         {
             if (monster == null)

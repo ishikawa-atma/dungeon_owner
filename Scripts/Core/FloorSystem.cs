@@ -315,6 +315,48 @@ namespace DungeonOwner.Core
             return new List<Floor>(Floors);
         }
 
+        /// <summary>
+        /// 指定階層に配置可能なスペースがあるかチェック
+        /// 退避スポットシステム用
+        /// </summary>
+        public bool HasAvailableSpace(int floorIndex)
+        {
+            Floor floor = GetFloor(floorIndex);
+            if (floor == null) return false;
+            
+            return floor.GetMonsterCount() < floor.maxMonsters;
+        }
+
+        /// <summary>
+        /// 指定階層の配置可能位置リストを取得
+        /// 退避スポットシステム用
+        /// </summary>
+        public List<Vector2> GetAvailablePositions(int floorIndex)
+        {
+            Floor floor = GetFloor(floorIndex);
+            if (floor == null) return new List<Vector2>();
+            
+            return floor.GetAvailablePositions();
+        }
+
+        /// <summary>
+        /// 指定階層のモンスター数を取得
+        /// </summary>
+        public int GetMonsterCount(int floorIndex)
+        {
+            Floor floor = GetFloor(floorIndex);
+            return floor?.GetMonsterCount() ?? 0;
+        }
+
+        /// <summary>
+        /// 指定階層の最大モンスター数を取得
+        /// </summary>
+        public int GetMaxMonsters(int floorIndex)
+        {
+            Floor floor = GetFloor(floorIndex);
+            return floor?.maxMonsters ?? 0;
+        }
+
         // デバッグ用メソッド
         public void DebugPrintFloorInfo()
         {

@@ -152,6 +152,18 @@ namespace DungeonOwner.Monsters
             OnHealed(amount);
         }
 
+        /// <summary>
+        /// マナを回復する
+        /// 退避スポットシステム用
+        /// </summary>
+        public virtual void RestoreMana(float amount)
+        {
+            if (isDead) return;
+            
+            currentMana = Mathf.Min(MaxMana, currentMana + amount);
+            OnManaRestored(amount);
+        }
+
         public virtual void UseAbility()
         {
             if (isDead || monsterData == null) return;
@@ -290,6 +302,7 @@ namespace DungeonOwner.Monsters
         // イベントハンドラー（オーバーライド可能）
         protected virtual void OnDamageTaken(float damage) { }
         protected virtual void OnHealed(float amount) { }
+        protected virtual void OnManaRestored(float amount) { }
         protected virtual void OnDeath() { }
         protected virtual void OnJoinedParty(IParty party) { }
         protected virtual void OnLeftParty(IParty party) { }

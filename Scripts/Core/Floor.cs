@@ -152,5 +152,56 @@ namespace DungeonOwner.Core
         {
             hasCore = true;
         }
+
+        /// <summary>
+        /// 現在のモンスター数を取得
+        /// 退避スポットシステム用
+        /// </summary>
+        public int GetMonsterCount()
+        {
+            int count = 0;
+            foreach (var monster in placedMonsters)
+            {
+                if (monster != null) count++;
+            }
+            return count;
+        }
+
+        /// <summary>
+        /// 最大モンスター数を取得
+        /// </summary>
+        public int maxMonsters => 15;
+
+        /// <summary>
+        /// 配置可能な位置のリストを取得
+        /// 退避スポットシステム用
+        /// </summary>
+        public List<Vector2> GetAvailablePositions()
+        {
+            List<Vector2> availablePositions = new List<Vector2>();
+            
+            // グリッド範囲内で配置可能な位置を検索
+            for (int x = -5; x <= 5; x++)
+            {
+                for (int y = -5; y <= 5; y++)
+                {
+                    Vector2 position = new Vector2(x, y);
+                    if (CanPlaceMonster(position))
+                    {
+                        availablePositions.Add(position);
+                    }
+                }
+            }
+            
+            return availablePositions;
+        }
+
+        /// <summary>
+        /// 指定されたモンスターがこの階層に配置されているかチェック
+        /// </summary>
+        public bool HasMonster(GameObject monster)
+        {
+            return monster != null && placedMonsters.Contains(monster);
+        }
     }
 }
