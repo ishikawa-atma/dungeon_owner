@@ -49,6 +49,37 @@ namespace DungeonOwner.Core
             GameSpeed = 1.0f;
         }
 
+        private void Start()
+        {
+            // FloorSystemの初期化を待つ
+            if (FloorSystem.Instance != null)
+            {
+                FloorSystem.Instance.OnFloorChanged += OnFloorViewChanged;
+                FloorSystem.Instance.OnFloorExpanded += OnFloorExpanded;
+            }
+        }
+
+        private void OnDestroy()
+        {
+            // イベント購読を解除
+            if (FloorSystem.Instance != null)
+            {
+                FloorSystem.Instance.OnFloorChanged -= OnFloorViewChanged;
+                FloorSystem.Instance.OnFloorExpanded -= OnFloorExpanded;
+            }
+        }
+
+        private void OnFloorViewChanged(int newFloor)
+        {
+            CurrentFloor = newFloor;
+            OnFloorChanged?.Invoke(CurrentFloor);
+        }
+
+        private void OnFloorExpanded(int newFloorIndex)
+        {
+            Debug.Log($"New floor {newFloorIndex} has been added to the dungeon");
+        }
+
         public void ChangeState(GameState newState)
         {
             if (CurrentState != newState)
@@ -92,8 +123,22 @@ namespace DungeonOwner.Core
 
         public void ExpandFloor()
         {
-            // この機能は後のタスクで実装
-            Debug.Log("Floor expansion requested");
+            if (FloorSystem.Instance != null && FloorSystem.Instance.CanExpandFloor())
+            {
+                bool success = FloorSystem.Instance.ExpandFloor();
+                if (success)
+                {
+                    Debug.Log("Floor expanded successfully");
+                }
+                else
+                {
+                    Debug.LogWarning("Failed to expand floor");
+                }
+            }
+            else
+            {
+                Debug.LogWarning("Cannot expand floor: FloorSystem not available or max floors reached");
+            }
         }
 
         public void StartGame()
