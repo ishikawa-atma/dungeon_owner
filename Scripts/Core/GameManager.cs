@@ -143,8 +143,24 @@ namespace DungeonOwner.Core
 
         public void StartGame()
         {
+            // ダンジョン初期化の確認
+            DungeonInitializer initializer = FindObjectOfType<DungeonInitializer>();
+            if (initializer != null && !initializer.IsReadyToStart())
+            {
+                Debug.LogWarning("Dungeon not ready to start. Initializing...");
+                initializer.InitializeDungeon();
+                
+                // 初期化完了を待つ
+                if (!initializer.IsReadyToStart())
+                {
+                    Debug.LogError("Failed to initialize dungeon for game start");
+                    return;
+                }
+            }
+
             ChangeState(GameState.Playing);
             Time.timeScale = GameSpeed;
+            Debug.Log("Game started successfully!");
         }
 
         public void EndGame()
