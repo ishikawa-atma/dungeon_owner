@@ -181,7 +181,13 @@ namespace DungeonOwner.Core
 
         public int GetExpansionCost(int targetFloor)
         {
-            // 階層数に応じてコストが増加
+            // FloorExpansionSystemがある場合はそちらを使用
+            if (FloorExpansionSystem.Instance != null)
+            {
+                return FloorExpansionSystem.Instance.CalculateExpansionCost(targetFloor);
+            }
+
+            // フォールバック: 階層数に応じてコストが増加
             // 基本コスト: 100 + (階層数 * 50)
             return 100 + (targetFloor * 50);
         }
@@ -215,6 +221,21 @@ namespace DungeonOwner.Core
             }
 
             return false;
+        }
+
+        /// <summary>
+        /// 階層拡張システム経由での拡張
+        /// FloorExpansionSystemから呼び出される
+        /// </summary>
+        public bool ExpandFloorWithCost()
+        {
+            if (FloorExpansionSystem.Instance != null)
+            {
+                return FloorExpansionSystem.Instance.TryExpandFloor();
+            }
+
+            // フォールバック: 直接拡張
+            return ExpandFloor();
         }
 
         public void ChangeViewFloor(int floorIndex)

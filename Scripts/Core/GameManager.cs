@@ -91,6 +91,14 @@ namespace DungeonOwner.Core
                 recoveryManagerObj.AddComponent<Managers.RecoveryManager>();
             }
 
+            // FloorExpansionSystemの確認
+            if (FloorExpansionSystem.Instance == null)
+            {
+                Debug.LogWarning("FloorExpansionSystem not found. Creating one...");
+                GameObject floorExpansionSystemObj = new GameObject("FloorExpansionSystem");
+                floorExpansionSystemObj.AddComponent<FloorExpansionSystem>();
+            }
+
             // TimeManagerとResourceManagerの連携確認
             InitializeEconomySystem();
 

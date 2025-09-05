@@ -98,6 +98,12 @@ namespace DungeonOwner.UI
             {
                 FloorSystem.Instance.OnFloorChanged += OnFloorChanged;
             }
+
+            // FloorExpansionSystemのイベント
+            if (FloorExpansionSystem.Instance != null)
+            {
+                FloorExpansionSystem.Instance.OnNewMonstersUnlocked += OnNewMonstersUnlocked;
+            }
         }
 
         private void CreateMonsterButtons()
@@ -118,13 +124,37 @@ namespace DungeonOwner.UI
             }
             monsterButtons.Clear();
 
-            // 解放されたモンスターのボタンを作成
-            var unlockedMonsters = MonsterPlacementManager.Instance?.GetUnlockedMonsters();
-            if (unlockedMonsters == null) return;
-
-            foreach (var monsterData in unlockedMonsters)
+            // 階層拡張システムから利用可能なモンスターを取得
+            List<MonsterType> availableMonsterTypes;
+            if (FloorExpansionSystem.Instance != null)
             {
-                CreateMonsterButton(monsterData);
+                availableMonsterTypes = FloorExpansionSystem.Instance.GetAvailableMonsters();
+            }
+            else
+            {
+                // フォールバック: MonsterPlacementManagerから取得
+                var unlockedMonsters = MonsterPlacementManager.Instance?.GetUnlockedMonsters();
+                availableMonsterTypes = new List<MonsterType>();
+                if (unlockedMonsters != null)
+                {
+                    foreach (var monsterData in unlockedMonsters)
+                    {
+                        availableMonsterTypes.Add(monsterData.type);
+                    }
+                }
+            }
+
+            // DataManagerからMonsterDataを取得してボタンを作成
+            if (DataManager.Instance != null)
+            {
+                foreach (var monsterType in availableMonsterTypes)
+                {
+                    var monsterData = DataManager.Instance.GetMonsterData(monsterType);
+                    if (monsterData != null)
+                    {
+                        CreateMonsterButton(monsterData);
+                    }
+                }
             }
         }
 
@@ -453,6 +483,11 @@ namespace DungeonOwner.UI
                 FloorSystem.Instance.OnFloorChanged -= OnFloorChanged;
             }
 
+            if (FloorExpansionSystem.Instance != null)
+            {
+                FloorExpansionSystem.Instance.OnNewMonstersUnlocked -= OnNewMonstersUnlocked;
+            }
+
             DestroyPlacementGhost();
         }
 
@@ -470,6 +505,15 @@ namespace DungeonOwner.UI
         public void RefreshUnlockedMonsters()
         {
             UpdateMonsterButtons();
+        }
+
+        /// <summary>
+        /// 新モンスター解放イベントハンドラー
+        /// </summary>
+        private void OnNewMonstersUnlocked(List<MonsterType> unlockedMonsters)
+        {
+            Debug.Log($"MonsterPlacementUI: New monsters unlocked, refreshing buttons");
+            RefreshUnlockedMonsters();
         }
     }
 }

@@ -2,6 +2,7 @@ using UnityEngine;
 using System;
 using DungeonOwner.Interfaces;
 using DungeonOwner.Data;
+using DungeonOwner.Core;
 
 namespace DungeonOwner.Managers
 {
@@ -273,10 +274,17 @@ namespace DungeonOwner.Managers
 
         /// <summary>
         /// 階層拡張コストを計算
+        /// FloorExpansionSystemがある場合はそちらを使用
         /// </summary>
         public int CalculateFloorExpansionCost(int targetFloor)
         {
-            // 階層数に応じて指数的に増加
+            // FloorExpansionSystemがある場合はそちらを使用
+            if (FloorExpansionSystem.Instance != null)
+            {
+                return FloorExpansionSystem.Instance.CalculateExpansionCost(targetFloor);
+            }
+
+            // フォールバック: 階層数に応じて指数的に増加
             int baseCost = 200;
             float multiplier = Mathf.Pow(1.5f, targetFloor - 3); // 3階層目以降から増加
             
@@ -285,9 +293,17 @@ namespace DungeonOwner.Managers
 
         /// <summary>
         /// 階層拡張処理
+        /// FloorExpansionSystemがある場合はそちらを使用
         /// </summary>
         public bool ProcessFloorExpansion(int targetFloor)
         {
+            // FloorExpansionSystemがある場合はそちらを使用
+            if (FloorExpansionSystem.Instance != null)
+            {
+                return FloorExpansionSystem.Instance.TryExpandFloor();
+            }
+
+            // フォールバック: 直接処理
             int cost = CalculateFloorExpansionCost(targetFloor);
             
             if (SpendGold(cost))
