@@ -348,6 +348,33 @@ namespace DungeonOwner.Monsters
             abilityMap[ability.AbilityType] = ability;
         }
         
+        protected void AddAbility(MonsterAbilityType abilityType)
+        {
+            // アビリティタイプに基づいてアビリティインスタンスを作成
+            IMonsterAbility ability = CreateAbilityInstance(abilityType);
+            if (ability != null)
+            {
+                AddAbility(ability);
+            }
+        }
+        
+        private IMonsterAbility CreateAbilityInstance(MonsterAbilityType abilityType)
+        {
+            // 各アビリティタイプに対応するインスタンスを作成
+            // 実際の実装では、アビリティファクトリーパターンを使用することを推奨
+            switch (abilityType)
+            {
+                case MonsterAbilityType.AutoHeal:
+                    return gameObject.AddComponent<AutoHealAbility>();
+                case MonsterAbilityType.AutoRevive:
+                    return gameObject.AddComponent<AutoReviveAbility>();
+                // 他のアビリティタイプも必要に応じて追加
+                default:
+                    Debug.LogWarning($"Ability type {abilityType} not implemented");
+                    return null;
+            }
+        }
+        
         protected void RemoveAbility(MonsterAbilityType abilityType)
         {
             if (abilityMap.TryGetValue(abilityType, out IMonsterAbility ability))
