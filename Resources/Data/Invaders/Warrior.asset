@@ -13,15 +13,16 @@ MonoBehaviour:
   m_Name: Warrior
   type: 0
   rank: 0
-  displayName: 戦士
-  description: 剣と盾を持つ前衛の冒険者。バランスの取れた能力を持つ。
+  displayName: "\u6226\u58EB"
+  description: "\u9632\u5FA1\u529B\u304C\u9AD8\u304F\u3001\u30B7\u30FC\u30EB\u30C9\u30A2\u30D3\u30EA\u30C6\u30A3\u3067\u30C0\u30E1\u30FC\u30B8\u3092\u8EFD\u6E1B\u3067\u304D\u308B\u524D\u885B\u30BF\u30A4\u30D7\u3002"
   baseHealth: 120
   baseAttackPower: 20
   moveSpeed: 2.5
   goldReward: 60
   trapItemDropRate: 0.08
   minAppearanceFloor: 1
-  abilities: [1]
+  abilities:
+  - 1
   prefab: {fileID: 0}
   icon: {fileID: 0}
   rankColor: {r: 0.8, g: 0.8, b: 0.8, a: 1}

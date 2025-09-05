@@ -13,15 +13,16 @@ MonoBehaviour:
   m_Name: Mage
   type: 1
   rank: 0
-  displayName: 魔法使い
-  description: 杖を持つ魔法の使い手。遠距離攻撃が得意。
+  displayName: "\u9B54\u6CD5\u4F7F\u3044"
+  description: "\u9060\u8DDD\u96E2\u304B\u3089\u30D5\u30A1\u30A4\u30A2\u30DC\u30FC\u30EB\u3067\u653B\u6483\u3059\u308B\u9B54\u6CD5\u30BF\u30A4\u30D7\u3002\u7BC4\u56F2\u30C0\u30E1\u30FC\u30B8\u304C\u5F37\u529B\u3002"
   baseHealth: 80
   baseAttackPower: 25
-  moveSpeed: 2
+  moveSpeed: 2.8
   goldReward: 70
   trapItemDropRate: 0.12
   minAppearanceFloor: 1
-  abilities: [2]
+  abilities:
+  - 2
   prefab: {fileID: 0}
   icon: {fileID: 0}
-  rankColor: {r: 0.6, g: 0.6, b: 1, a: 1}
+  rankColor: {r: 0.3, g: 0.3, b: 1, a: 1}
