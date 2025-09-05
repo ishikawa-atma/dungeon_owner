@@ -1,5 +1,6 @@
 using UnityEngine;
 using System;
+using DungeonOwner.Managers;
 
 namespace DungeonOwner.Core
 {
@@ -79,8 +80,23 @@ namespace DungeonOwner.Core
             currentDay++;
             currentDayTime = 0f;
             
+            // 日次報酬処理
+            ProcessDailyReward();
+            
             OnDayCompleted?.Invoke();
             Debug.Log($"Day {currentDay - 1} completed. Starting day {currentDay}");
+        }
+
+        /// <summary>
+        /// 日次報酬処理
+        /// </summary>
+        private void ProcessDailyReward()
+        {
+            if (ResourceManager.Instance != null)
+            {
+                ResourceManager.Instance.CheckDailyReward();
+                Debug.Log($"Daily reward processed for day {currentDay}");
+            }
         }
 
         public void CycleGameSpeed()

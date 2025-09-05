@@ -24,6 +24,7 @@ namespace DungeonOwner.Managers
         [SerializeField] private float sellPriceRatio = 0.7f; // 売却価格比率
 
         private DateTime lastDailyReward;
+        private int lastRewardDay = 0; // ゲーム内日数での管理
         private bool isInitialized = false;
 
         // イベント
@@ -215,16 +216,31 @@ namespace DungeonOwner.Managers
         }
 
         /// <summary>
-        /// 日次報酬チェック・付与
+        /// 日次報酬チェック・付与（ゲーム内時間ベース）
         /// </summary>
         public void CheckDailyReward()
         {
-            DateTime today = DateTime.Now.Date;
-            
-            if (lastDailyReward.Date < today)
+            // ゲーム内時間ベースでの日次報酬
+            if (TimeManager.Instance != null)
             {
-                ProcessDailyReward();
-                lastDailyReward = today;
+                int currentGameDay = TimeManager.Instance.CurrentDay;
+                
+                if (currentGameDay > lastRewardDay)
+                {
+                    ProcessDailyReward();
+                    lastRewardDay = currentGameDay;
+                }
+            }
+            else
+            {
+                // フォールバック: リアル時間ベース
+                DateTime today = DateTime.Now.Date;
+                
+                if (lastDailyReward.Date < today)
+                {
+                    ProcessDailyReward();
+                    lastDailyReward = today;
+                }
             }
         }
 
@@ -281,6 +297,22 @@ namespace DungeonOwner.Managers
         public void SetLastDailyReward(DateTime date)
         {
             lastDailyReward = date;
+        }
+
+        /// <summary>
+        /// セーブデータ用のゲーム内日次報酬日数設定
+        /// </summary>
+        public void SetLastRewardDay(int day)
+        {
+            lastRewardDay = day;
+        }
+
+        /// <summary>
+        /// 現在の報酬日数を取得
+        /// </summary>
+        public int GetLastRewardDay()
+        {
+            return lastRewardDay;
         }
 
         /// <summary>

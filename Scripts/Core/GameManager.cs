@@ -83,7 +83,41 @@ namespace DungeonOwner.Core
                 levelDisplayManagerObj.AddComponent<Managers.LevelDisplayManager>();
             }
 
+            // TimeManagerとResourceManagerの連携確認
+            InitializeEconomySystem();
+
             Debug.Log("All required managers initialized");
+        }
+
+        /// <summary>
+        /// 経済システムの初期化
+        /// </summary>
+        private void InitializeEconomySystem()
+        {
+            // TimeManagerの日次報酬イベントに登録
+            if (TimeManager.Instance != null && Managers.ResourceManager.Instance != null)
+            {
+                TimeManager.Instance.OnDayCompleted += OnDayCompleted;
+                Debug.Log("Economy system initialized - TimeManager and ResourceManager linked");
+            }
+            else
+            {
+                Debug.LogWarning("Failed to initialize economy system - missing managers");
+            }
+        }
+
+        /// <summary>
+        /// 日完了時の処理
+        /// </summary>
+        private void OnDayCompleted()
+        {
+            Debug.Log("Day completed - processing daily rewards");
+            
+            // ResourceManagerで日次報酬処理
+            if (Managers.ResourceManager.Instance != null)
+            {
+                Managers.ResourceManager.Instance.CheckDailyReward();
+            }
         }
 
         private void OnDestroy()
@@ -93,6 +127,12 @@ namespace DungeonOwner.Core
             {
                 FloorSystem.Instance.OnFloorChanged -= OnFloorViewChanged;
                 FloorSystem.Instance.OnFloorExpanded -= OnFloorExpanded;
+            }
+
+            // TimeManagerのイベント購読を解除
+            if (TimeManager.Instance != null)
+            {
+                TimeManager.Instance.OnDayCompleted -= OnDayCompleted;
             }
         }
 
