@@ -60,6 +60,9 @@ namespace DungeonOwner.Monsters
         protected virtual void Start()
         {
             UpdateStatsForLevel();
+            
+            // レベル表示システムに登録
+            RegisterLevelDisplay();
         }
 
         protected virtual void Update()
@@ -222,6 +225,9 @@ namespace DungeonOwner.Monsters
                 Core.CombatDetector.Instance.ClearCombatEngagements(gameObject);
             }
             
+            // レベル表示システムから削除
+            UnregisterLevelDisplay();
+            
             OnDeath();
         }
 
@@ -261,6 +267,23 @@ namespace DungeonOwner.Monsters
         public bool IsAlive()
         {
             return !isDead && currentHealth > 0;
+        }
+
+        // レベル表示システム連携
+        protected virtual void RegisterLevelDisplay()
+        {
+            if (Managers.LevelDisplayManager.Instance != null)
+            {
+                Managers.LevelDisplayManager.Instance.AddLevelDisplay(gameObject, this);
+            }
+        }
+
+        protected virtual void UnregisterLevelDisplay()
+        {
+            if (Managers.LevelDisplayManager.Instance != null)
+            {
+                Managers.LevelDisplayManager.Instance.RemoveLevelDisplay(gameObject);
+            }
         }
 
         // デバッグ用

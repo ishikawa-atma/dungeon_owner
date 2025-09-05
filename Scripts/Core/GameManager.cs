@@ -57,6 +57,33 @@ namespace DungeonOwner.Core
                 FloorSystem.Instance.OnFloorChanged += OnFloorViewChanged;
                 FloorSystem.Instance.OnFloorExpanded += OnFloorExpanded;
             }
+
+            // ResourceManagerとLevelDisplayManagerの初期化確認
+            InitializeManagers();
+        }
+
+        /// <summary>
+        /// 必要なマネージャーの初期化確認
+        /// </summary>
+        private void InitializeManagers()
+        {
+            // ResourceManagerの確認
+            if (Managers.ResourceManager.Instance == null)
+            {
+                Debug.LogWarning("ResourceManager not found. Creating one...");
+                GameObject resourceManagerObj = new GameObject("ResourceManager");
+                resourceManagerObj.AddComponent<Managers.ResourceManager>();
+            }
+
+            // LevelDisplayManagerの確認
+            if (Managers.LevelDisplayManager.Instance == null)
+            {
+                Debug.LogWarning("LevelDisplayManager not found. Creating one...");
+                GameObject levelDisplayManagerObj = new GameObject("LevelDisplayManager");
+                levelDisplayManagerObj.AddComponent<Managers.LevelDisplayManager>();
+            }
+
+            Debug.Log("All required managers initialized");
         }
 
         private void OnDestroy()

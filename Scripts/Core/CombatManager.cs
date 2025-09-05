@@ -4,6 +4,7 @@ using DungeonOwner.Interfaces;
 using DungeonOwner.Data;
 using DungeonOwner.Monsters;
 using DungeonOwner.Invaders;
+using DungeonOwner.Managers;
 
 namespace DungeonOwner.Core
 {
@@ -123,41 +124,85 @@ namespace DungeonOwner.Core
         }
 
         /// <summary>
-        /// ダメージ確率計算
+        /// ダメージ確率計算（レベル差を詳細に考慮）
         /// </summary>
         private float CalculateDamageChance(ICharacterBase attacker, ICharacterBase defender)
         {
             float chance = baseDamageChance;
 
-            // レベル差による補正
+            // レベル差による補正（より詳細な計算）
             int levelDifference = GetLevel(attacker) - GetLevel(defender);
-            chance += levelDifference * levelDifferenceModifier;
+            
+            if (levelDifference > 0)
+            {
+                // 攻撃側が高レベルの場合：命中率上昇
+                chance += levelDifference * levelDifferenceModifier;
+            }
+            else if (levelDifference < 0)
+            {
+                // 防御側が高レベルの場合：回避率上昇
+                chance += levelDifference * (levelDifferenceModifier * 0.7f);
+            }
+
+            // レベル差が大きい場合の特別処理
+            if (Mathf.Abs(levelDifference) >= 5)
+            {
+                float extremeBonus = (Mathf.Abs(levelDifference) - 4) * 0.05f;
+                chance += levelDifference > 0 ? extremeBonus : -extremeBonus;
+            }
 
             return Mathf.Clamp01(chance);
         }
 
         /// <summary>
-        /// ダメージ計算
+        /// ダメージ計算（レベル差を詳細に考慮）
         /// </summary>
         private float CalculateDamage(float baseAttack, ICharacterBase attacker, ICharacterBase defender)
         {
             float damage = baseAttack;
 
-            // レベル差による補正
-            int levelDifference = GetLevel(attacker) - GetLevel(defender);
+            // レベル差による補正（より詳細な計算）
+            int attackerLevel = GetLevel(attacker);
+            int defenderLevel = GetLevel(defender);
+            int levelDifference = attackerLevel - defenderLevel;
+
+            // 基本レベル補正
             if (levelDifference > 0)
             {
-                damage *= (1f + levelDifference * 0.1f);
+                // 攻撃側が高レベル：ダメージ増加
+                float damageMultiplier = 1f + (levelDifference * 0.15f);
+                damage *= damageMultiplier;
             }
             else if (levelDifference < 0)
             {
-                damage *= (1f + levelDifference * 0.05f); // 防御側有利
+                // 防御側が高レベル：ダメージ軽減
+                float damageReduction = 1f + (levelDifference * 0.08f);
+                damage *= damageReduction;
             }
 
-            // ランダム要素（±20%）
-            damage *= Random.Range(0.8f, 1.2f);
+            // 絶対レベルによる基本ダメージ補正
+            float attackerLevelBonus = 1f + (attackerLevel - 1) * 0.05f;
+            damage *= attackerLevelBonus;
 
-            return Mathf.Max(1f, damage); // 最低1ダメージ
+            // 極端なレベル差の場合の特別処理
+            if (Mathf.Abs(levelDifference) >= 10)
+            {
+                if (levelDifference > 0)
+                {
+                    damage *= 1.5f; // 圧倒的優位
+                }
+                else
+                {
+                    damage *= 0.3f; // 圧倒的劣勢
+                }
+            }
+
+            // ランダム要素（±15%）
+            damage *= Random.Range(0.85f, 1.15f);
+
+            // 最低ダメージ保証（レベル差を考慮）
+            float minDamage = Mathf.Max(1f, attackerLevel * 0.5f);
+            return Mathf.Max(minDamage, damage);
         }
 
         /// <summary>
@@ -165,6 +210,8 @@ namespace DungeonOwner.Core
         /// </summary>
         private void ApplyDamage(ICharacterBase target, float damage)
         {
+            float previousHealth = target.Health;
+            
             if (target is IMonster monster)
             {
                 monster.TakeDamage(damage);
@@ -172,7 +219,37 @@ namespace DungeonOwner.Core
             else if (target is IInvader invader)
             {
                 invader.TakeDamage(damage);
+                
+                // 侵入者が撃破された場合の報酬処理
+                if (previousHealth > 0 && invader.Health <= 0)
+                {
+                    ProcessInvaderDefeat(invader);
+                }
             }
+        }
+
+        /// <summary>
+        /// 侵入者撃破処理
+        /// </summary>
+        private void ProcessInvaderDefeat(IInvader invader)
+        {
+            // ResourceManagerに報酬処理を委譲
+            if (ResourceManager.Instance != null)
+            {
+                ResourceManager.Instance.ProcessInvaderDefeatReward(invader);
+            }
+
+            // InvaderSpawnerに撃破通知
+            if (InvaderSpawner.Instance != null)
+            {
+                var invaderObj = (invader as MonoBehaviour)?.gameObject;
+                if (invaderObj != null)
+                {
+                    InvaderSpawner.Instance.OnInvaderDestroyed(invaderObj);
+                }
+            }
+
+            Debug.Log($"Invader {invader.Type} (Lv.{invader.Level}) defeated!");
         }
 
         /// <summary>

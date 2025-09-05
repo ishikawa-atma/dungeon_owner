@@ -64,6 +64,9 @@ namespace DungeonOwner.Invaders
         {
             // 出現エフェクト
             PlaySpawnEffect();
+            
+            // レベル表示システムに登録
+            RegisterLevelDisplay();
         }
 
         protected virtual void Update()
@@ -374,6 +377,9 @@ namespace DungeonOwner.Invaders
                 Core.CombatDetector.Instance.ClearCombatEngagements(gameObject);
             }
             
+            // レベル表示システムから削除
+            UnregisterLevelDisplay();
+            
             // 報酬処理
             GiveRewards();
             
@@ -433,6 +439,23 @@ namespace DungeonOwner.Invaders
         public float GetAttackPower()
         {
             return attackPower;
+        }
+
+        // レベル表示システム連携
+        protected virtual void RegisterLevelDisplay()
+        {
+            if (Managers.LevelDisplayManager.Instance != null)
+            {
+                Managers.LevelDisplayManager.Instance.AddLevelDisplay(gameObject, this);
+            }
+        }
+
+        protected virtual void UnregisterLevelDisplay()
+        {
+            if (Managers.LevelDisplayManager.Instance != null)
+            {
+                Managers.LevelDisplayManager.Instance.RemoveLevelDisplay(gameObject);
+            }
         }
 
         // デバッグ用
