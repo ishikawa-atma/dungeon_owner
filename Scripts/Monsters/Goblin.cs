@@ -23,24 +23,10 @@ namespace DungeonOwner.Monsters
             }
         }
 
-        protected override void ExecuteAbility()
+        protected override void InitializeAbilities()
         {
-            // ゴブリンのアビリティ：狂戦士の怒り（攻撃力・速度アップ）
-            if (currentMana >= 15f)
-            {
-                currentMana -= 15f;
-                StartBerserkerRage();
-            }
-        }
-
-        protected override bool CanUseAbility()
-        {
-            return currentMana >= 15f && !isRaging;
-        }
-
-        protected override float GetAbilityCooldown()
-        {
-            return 12f; // 12秒クールダウン
+            base.InitializeAbilities();
+            // 将来的にゴブリン専用アビリティを追加
         }
 
         private void ProcessAggressiveBehavior()

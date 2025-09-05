@@ -22,24 +22,10 @@ namespace DungeonOwner.Monsters
             }
         }
 
-        protected override void ExecuteAbility()
+        protected override void InitializeAbilities()
         {
-            // ウルフのアビリティ：遠吠え（周囲の味方を強化）
-            if (currentMana >= 20f)
-            {
-                currentMana -= 20f;
-                StartHowl();
-            }
-        }
-
-        protected override bool CanUseAbility()
-        {
-            return currentMana >= 20f && !isHowling && Time.time - lastHowlTime > 30f;
-        }
-
-        protected override float GetAbilityCooldown()
-        {
-            return 30f; // 30秒クールダウン
+            base.InitializeAbilities();
+            // 将来的にウルフ専用アビリティを追加
         }
 
         private void ProcessPackBehavior()

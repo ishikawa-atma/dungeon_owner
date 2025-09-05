@@ -1,6 +1,8 @@
 using UnityEngine;
+using System.Collections.Generic;
 using DungeonOwner.Data;
 using DungeonOwner.Interfaces;
+using DungeonOwner.Core;
 
 namespace DungeonOwner.Monsters
 {
@@ -18,6 +20,10 @@ namespace DungeonOwner.Monsters
         protected IParty currentParty;
         protected float lastAbilityUse;
         protected bool isDead = false;
+        
+        // アビリティシステム
+        protected List<IMonsterAbility> abilities = new List<IMonsterAbility>();
+        protected Dictionary<MonsterAbilityType, IMonsterAbility> abilityMap = new Dictionary<MonsterAbilityType, IMonsterAbility>();
 
         // IMonster プロパティ
         public MonsterType Type => monsterData?.type ?? MonsterType.Slime;
@@ -80,6 +86,12 @@ namespace DungeonOwner.Monsters
             isDead = false;
             lastAbilityUse = 0f;
             UpdateStatsForLevel();
+            InitializeAbilities();
+        }
+        
+        protected virtual void InitializeAbilities()
+        {
+            // サブクラスでオーバーライドしてアビリティを追加
         }
 
         protected virtual void UpdateStatsForLevel()
@@ -141,14 +153,20 @@ namespace DungeonOwner.Monsters
         {
             if (isDead || monsterData == null) return;
             
-            float cooldown = GetAbilityCooldown();
-            if (Time.time - lastAbilityUse < cooldown) return;
+            // 新しいアビリティシステムを使用
+            UseAbility(MonsterAbilityType.AutoHeal); // デフォルトアビリティ
+        }
+        
+        public virtual bool UseAbility(MonsterAbilityType abilityType)
+        {
+            if (isDead) return false;
             
-            if (CanUseAbility())
+            if (abilityMap.TryGetValue(abilityType, out IMonsterAbility ability))
             {
-                ExecuteAbility();
-                lastAbilityUse = Time.time;
+                return ability.Execute();
             }
+            
+            return false;
         }
 
         public virtual void JoinParty(IParty party)
@@ -185,13 +203,38 @@ namespace DungeonOwner.Monsters
 
         // 抽象メソッド（サブクラスで実装）
         protected abstract void UpdateMonsterBehavior();
-        protected abstract void ExecuteAbility();
-        protected abstract bool CanUseAbility();
-        protected abstract float GetAbilityCooldown();
+        
+        // 仮想メソッド（レガシー対応、オーバーライド可能）
+        protected virtual void ExecuteAbility()
+        {
+            // デフォルト実装：最初のアビリティを使用
+            if (abilities.Count > 0)
+            {
+                abilities[0].Execute();
+            }
+        }
+        
+        protected virtual bool CanUseAbility()
+        {
+            // デフォルト実装：最初のアビリティが使用可能かチェック
+            return abilities.Count > 0 && abilities[0].CanUse;
+        }
+        
+        protected virtual float GetAbilityCooldown()
+        {
+            // デフォルト実装：最初のアビリティのクールダウンを返す
+            return abilities.Count > 0 ? abilities[0].CooldownTime : 3f;
+        }
 
         // 仮想メソッド（オーバーライド可能）
         protected virtual void ProcessAbilities()
         {
+            // 全アビリティの更新処理
+            foreach (var ability in abilities)
+            {
+                ability.Update();
+            }
+            
             // 基本的な回復処理
             if (currentState == MonsterState.Idle || currentState == MonsterState.InShelter)
             {
@@ -267,6 +310,47 @@ namespace DungeonOwner.Monsters
         public bool IsAlive()
         {
             return !isDead && currentHealth > 0;
+        }
+        
+        // アビリティ管理メソッド
+        protected void AddAbility(IMonsterAbility ability)
+        {
+            if (ability == null) return;
+            
+            ability.Initialize(this);
+            abilities.Add(ability);
+            abilityMap[ability.AbilityType] = ability;
+        }
+        
+        protected void RemoveAbility(MonsterAbilityType abilityType)
+        {
+            if (abilityMap.TryGetValue(abilityType, out IMonsterAbility ability))
+            {
+                abilities.Remove(ability);
+                abilityMap.Remove(abilityType);
+            }
+        }
+        
+        public IMonsterAbility GetAbility(MonsterAbilityType abilityType)
+        {
+            abilityMap.TryGetValue(abilityType, out IMonsterAbility ability);
+            return ability;
+        }
+        
+        public List<IMonsterAbility> GetAllAbilities()
+        {
+            return new List<IMonsterAbility>(abilities);
+        }
+        
+        public bool HasAbility(MonsterAbilityType abilityType)
+        {
+            return abilityMap.ContainsKey(abilityType);
+        }
+        
+        // マナ消費メソッド（アビリティシステム用）
+        public virtual void ConsumeMana(float amount)
+        {
+            currentMana = Mathf.Max(0, currentMana - amount);
         }
 
         // レベル表示システム連携

@@ -1,5 +1,6 @@
 using UnityEngine;
 using DungeonOwner.Data;
+using DungeonOwner.Core.Abilities;
 
 namespace DungeonOwner.Monsters
 {
@@ -10,42 +11,45 @@ namespace DungeonOwner.Monsters
         [SerializeField] private float healInterval = 1f; // 回復間隔
         
         private float lastHealTime;
+        private AutoHealAbility autoHealAbility;
+
+        protected override void InitializeAbilities()
+        {
+            base.InitializeAbilities();
+            
+            // 自動体力回復アビリティを追加
+            autoHealAbility = new AutoHealAbility();
+            AddAbility(autoHealAbility);
+        }
 
         protected override void UpdateMonsterBehavior()
         {
             // スライムは基本的にアイドル状態で自動回復に専念
             if (currentState == MonsterState.Idle && IsAlive())
             {
-                // 特別な行動は無し、自動回復のみ
+                // アビリティシステムが自動回復を処理
             }
         }
 
         protected override void ExecuteAbility()
         {
-            // スライムのアビリティ：強化された自動回復
-            if (currentHealth < MaxHealth)
-            {
-                float healAmount = MaxHealth * 0.1f; // 最大HPの10%回復
-                Heal(healAmount);
-                
-                // エフェクト表示（後で実装）
-                ShowHealEffect();
-            }
+            // 新しいアビリティシステムを使用
+            UseAbility(MonsterAbilityType.AutoHeal);
         }
 
         protected override bool CanUseAbility()
         {
-            return currentHealth < MaxHealth && currentMana >= 10f;
+            return autoHealAbility?.CanUse ?? false;
         }
 
         protected override float GetAbilityCooldown()
         {
-            return 3f; // 3秒クールダウン
+            return autoHealAbility?.CooldownTime ?? 3f;
         }
 
         protected override void ProcessNaturalRecovery()
         {
-            // スライムは通常より高速で回復
+            // スライムは通常より高速で回復（アビリティシステムと併用）
             float baseRecoveryRate = currentState == MonsterState.InShelter ? 5f : 1f;
             float slimeRecoveryRate = baseRecoveryRate * autoHealRate;
             

@@ -1,5 +1,6 @@
 using UnityEngine;
 using DungeonOwner.Data;
+using DungeonOwner.Core;
 
 namespace DungeonOwner.Interfaces
 {
@@ -18,8 +19,14 @@ namespace DungeonOwner.Interfaces
         void TakeDamage(float damage);
         void Heal(float amount);
         void UseAbility();
+        bool UseAbility(MonsterAbilityType abilityType);
         void JoinParty(IParty party);
         void LeaveParty();
         void SetState(MonsterState newState);
+        void ConsumeMana(float amount);
+        
+        // アビリティ関連
+        IMonsterAbility GetAbility(MonsterAbilityType abilityType);
+        bool HasAbility(MonsterAbilityType abilityType);
     }
 }

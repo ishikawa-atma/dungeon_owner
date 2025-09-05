@@ -99,4 +99,21 @@ namespace DungeonOwner.Data
         Dead,
         InShelter
     }
+
+    public enum MonsterAbilityType
+    {
+        // パッシブアビリティ
+        AutoHeal,           // 自動体力回復
+        AutoRevive,         // 自動復活
+        
+        // アクティブアビリティ
+        BoneStrength,       // 骨の強化（スケルトン）
+        PhaseShift,         // フェーズシフト（ゴースト）
+        SlimeRegeneration,  // スライム再生
+        
+        // 特殊アビリティ
+        PartyHeal,          // パーティ回復
+        Taunt,              // 挑発
+        Stealth             // ステルス
+    }
 }

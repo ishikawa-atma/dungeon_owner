@@ -1,6 +1,7 @@
 using UnityEngine;
 using System.Collections;
 using DungeonOwner.Data;
+using DungeonOwner.Core.Abilities;
 
 namespace DungeonOwner.Monsters
 {
@@ -13,6 +14,18 @@ namespace DungeonOwner.Monsters
         private int currentRevives = 0;
         private bool isReviving = false;
         private Coroutine reviveCoroutine;
+        private AutoReviveAbility autoReviveAbility;
+
+        protected override void InitializeAbilities()
+        {
+            base.InitializeAbilities();
+            
+            // 自動復活アビリティを追加
+            autoReviveAbility = new AutoReviveAbility();
+            autoReviveAbility.SetReviveTime(reviveTime);
+            autoReviveAbility.SetMaxRevives(maxRevives);
+            AddAbility(autoReviveAbility);
+        }
 
         protected override void UpdateMonsterBehavior()
         {
@@ -46,10 +59,12 @@ namespace DungeonOwner.Monsters
 
         protected override void Die()
         {
-            if (currentRevives < maxRevives && !isReviving)
+            // 新しいアビリティシステムを使用して復活を試行
+            if (autoReviveAbility != null && autoReviveAbility.TryStartRevive())
             {
-                // 復活処理を開始
-                StartReviveProcess();
+                // 復活処理が開始された
+                isReviving = true;
+                currentRevives = autoReviveAbility.CurrentRevives;
             }
             else
             {
@@ -128,21 +143,21 @@ namespace DungeonOwner.Monsters
         // 復活をキャンセル（売却時など）
         public void CancelRevive()
         {
-            if (isReviving && reviveCoroutine != null)
+            if (autoReviveAbility != null)
             {
-                StopCoroutine(reviveCoroutine);
+                autoReviveAbility.CancelRevive();
                 isReviving = false;
             }
         }
 
         public bool IsReviving()
         {
-            return isReviving;
+            return autoReviveAbility?.IsReviving ?? false;
         }
 
         public int GetRemainingRevives()
         {
-            return maxRevives - currentRevives;
+            return autoReviveAbility?.RemainingRevives ?? 0;
         }
     }
 }

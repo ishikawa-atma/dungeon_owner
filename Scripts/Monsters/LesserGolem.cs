@@ -22,24 +22,10 @@ namespace DungeonOwner.Monsters
             }
         }
 
-        protected override void ExecuteAbility()
+        protected override void InitializeAbilities()
         {
-            // ゴーレムのアビリティ：石の盾（防御力大幅アップ）
-            if (currentMana >= 25f)
-            {
-                currentMana -= 25f;
-                StartStoneShield();
-            }
-        }
-
-        protected override bool CanUseAbility()
-        {
-            return currentMana >= 25f && !isTaunting;
-        }
-
-        protected override float GetAbilityCooldown()
-        {
-            return 20f; // 20秒クールダウン
+            base.InitializeAbilities();
+            // 将来的にゴーレム専用アビリティを追加
         }
 
         public override void TakeDamage(float damage)
