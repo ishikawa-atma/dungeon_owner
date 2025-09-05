@@ -69,6 +69,9 @@ namespace DungeonOwner.Monsters
             
             // レベル表示システムに登録
             RegisterLevelDisplay();
+            
+            // 回復システムに登録
+            RegisterRecoverySystem();
         }
 
         protected virtual void Update()
@@ -244,6 +247,13 @@ namespace DungeonOwner.Monsters
 
         protected virtual void ProcessNaturalRecovery()
         {
+            // 新しい回復システムを使用する場合はスキップ
+            if (Managers.RecoveryManager.Instance != null)
+            {
+                return;
+            }
+            
+            // フォールバック処理（旧システム）
             float recoveryRate = currentState == MonsterState.InShelter ? 5f : 1f;
             
             if (currentHealth < MaxHealth)
@@ -270,6 +280,9 @@ namespace DungeonOwner.Monsters
             
             // レベル表示システムから削除
             UnregisterLevelDisplay();
+            
+            // 回復システムから削除
+            UnregisterRecoverySystem();
             
             OnDeath();
         }
@@ -367,6 +380,23 @@ namespace DungeonOwner.Monsters
             if (Managers.LevelDisplayManager.Instance != null)
             {
                 Managers.LevelDisplayManager.Instance.RemoveLevelDisplay(gameObject);
+            }
+        }
+        
+        // 回復システム連携
+        protected virtual void RegisterRecoverySystem()
+        {
+            if (Managers.RecoveryManager.Instance != null)
+            {
+                Managers.RecoveryManager.Instance.RegisterMonster(this);
+            }
+        }
+
+        protected virtual void UnregisterRecoverySystem()
+        {
+            if (Managers.RecoveryManager.Instance != null)
+            {
+                Managers.RecoveryManager.Instance.UnregisterMonster(this);
             }
         }
 

@@ -83,6 +83,14 @@ namespace DungeonOwner.Core
                 levelDisplayManagerObj.AddComponent<Managers.LevelDisplayManager>();
             }
 
+            // RecoveryManagerの確認
+            if (Managers.RecoveryManager.Instance == null)
+            {
+                Debug.LogWarning("RecoveryManager not found. Creating one...");
+                GameObject recoveryManagerObj = new GameObject("RecoveryManager");
+                recoveryManagerObj.AddComponent<Managers.RecoveryManager>();
+            }
+
             // TimeManagerとResourceManagerの連携確認
             InitializeEconomySystem();
 
