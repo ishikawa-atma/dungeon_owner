@@ -101,6 +101,9 @@ namespace DungeonOwner.Core
 
             // TimeManagerとResourceManagerの連携確認
             InitializeEconomySystem();
+            
+            // パーティ戦闘システムの初期化
+            InitializePartyCombatSystem();
 
             Debug.Log("All required managers initialized");
         }
@@ -133,6 +136,25 @@ namespace DungeonOwner.Core
             if (Managers.ResourceManager.Instance != null)
             {
                 Managers.ResourceManager.Instance.CheckDailyReward();
+            }
+        }
+
+        /// <summary>
+        /// パーティ戦闘システムの初期化
+        /// </summary>
+        private void InitializePartyCombatSystem()
+        {
+            // PartyCombatSystemが存在することを確認
+            if (PartyCombatSystem.Instance != null)
+            {
+                Debug.Log("Party combat system initialized");
+            }
+            else
+            {
+                // PartyCombatSystemが存在しない場合は作成
+                GameObject partyCombatObj = new GameObject("PartyCombatSystem");
+                partyCombatObj.AddComponent<PartyCombatSystem>();
+                Debug.Log("Party combat system created and initialized");
             }
         }
 

@@ -72,8 +72,27 @@ namespace DungeonOwner.Core
             if (distance > combatRange)
                 return;
 
-            // 戦闘実行
-            ExecuteCombat(monster, invader, monsterObj, invaderObj);
+            // パーティ戦闘かチェック
+            if (monster.Party != null && invader.Party != null)
+            {
+                // パーティ対パーティの戦闘
+                ProcessPartyCombat(monster.Party, invader.Party);
+            }
+            else if (monster.Party != null)
+            {
+                // モンスターパーティ対単体侵入者
+                ProcessPartyVsIndividualCombat(monster.Party, invader);
+            }
+            else if (invader.Party != null)
+            {
+                // 単体モンスター対侵入者パーティ
+                ProcessIndividualVsPartyCombat(monster, invader.Party);
+            }
+            else
+            {
+                // 通常の1対1戦闘
+                ExecuteCombat(monster, invader, monsterObj, invaderObj);
+            }
         }
 
         /// <summary>
@@ -441,6 +460,71 @@ namespace DungeonOwner.Core
             combatRange = range;
             combatInterval = interval;
             knockbackForce = knockback;
+        }
+
+        /// <summary>
+        /// パーティ対パーティの戦闘処理
+        /// 要件19.4: 侵入者パーティが出現する場合、協力戦闘を実行
+        /// </summary>
+        private void ProcessPartyCombat(IParty monsterParty, IParty invaderParty)
+        {
+            if (PartyCombatSystem.Instance != null)
+            {
+                PartyCombatSystem.Instance.HandlePartyCombat(monsterParty, invaderParty);
+            }
+            else
+            {
+                // フォールバック: 従来の戦闘システム
+                if (PartyManager.Instance != null)
+                {
+                    PartyManager.Instance.HandlePartyCombat(monsterParty, invaderParty);
+                }
+            }
+        }
+
+        /// <summary>
+        /// パーティ対単体の戦闘処理
+        /// </summary>
+        private void ProcessPartyVsIndividualCombat(IParty party, ICharacterBase individual)
+        {
+            // パーティの総攻撃力を計算
+            float totalAttackPower = 0f;
+            foreach (var member in party.Members)
+            {
+                if (member.Health > 0)
+                {
+                    totalAttackPower += GetAttackPower(member);
+                }
+            }
+
+            // パーティボーナスを適用
+            totalAttackPower *= 1.3f;
+
+            // 単体キャラクターにダメージを適用
+            ApplyDamage(individual, totalAttackPower);
+
+            // エフェクト表示
+            Vector3 combatPosition = (party.Position + individual.Position) / 2f;
+            PlayCombatEffects(null, individual as MonoBehaviour, totalAttackPower);
+
+            Debug.Log($"パーティ({party.Members.Count}名) vs 単体戦闘: ダメージ{totalAttackPower}");
+        }
+
+        /// <summary>
+        /// 単体対パーティの戦闘処理
+        /// </summary>
+        private void ProcessIndividualVsPartyCombat(ICharacterBase individual, IParty party)
+        {
+            float attackPower = GetAttackPower(individual);
+
+            // パーティにダメージを分散
+            party.DistributeDamage(attackPower);
+
+            // エフェクト表示
+            Vector3 combatPosition = (individual.Position + party.Position) / 2f;
+            PlayCombatEffects(individual as MonoBehaviour, null, attackPower);
+
+            Debug.Log($"単体 vs パーティ({party.Members.Count}名)戦闘: ダメージ{attackPower}");
         }
 
         private void OnDrawGizmosSelected()

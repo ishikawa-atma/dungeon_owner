@@ -489,6 +489,7 @@ namespace DungeonOwner.Managers
 
         /// <summary>
         /// 指定パーティ出現システム
+        /// 要件18.3: 階層が深くなると侵入者をパーティ単位で出現
         /// </summary>
         public void SpawnInvaderParty(List<InvaderData> partyMembers, int baseLevel = 1)
         {
@@ -499,6 +500,7 @@ namespace DungeonOwner.Managers
 
             Vector2 basePosition = GetSpawnPosition();
             List<GameObject> partyObjects = new List<GameObject>();
+            List<ICharacterBase> partyCharacters = new List<ICharacterBase>();
 
             // パーティメンバーを順次生成
             for (int i = 0; i < partyMembers.Count; i++)
@@ -516,11 +518,26 @@ namespace DungeonOwner.Managers
                     
                     // パーティメンバーであることを示すタグを追加
                     member.tag = "InvaderParty";
+                    
+                    // ICharacterBaseインターフェースを取得
+                    var character = member.GetComponent<ICharacterBase>();
+                    if (character != null)
+                    {
+                        partyCharacters.Add(character);
+                    }
                 }
             }
 
-            // パーティ編成処理（IPartyが実装されたら）
-            // TODO: パーティシステムの実装
+            // パーティ編成処理
+            if (partyCharacters.Count > 0 && PartyManager.Instance != null)
+            {
+                var party = PartyManager.Instance.CreateParty(partyCharacters, 1); // 1階層に配置
+                if (party != null)
+                {
+                    party.Position = basePosition;
+                    Debug.Log($"侵入者パーティを作成: {partyCharacters.Count}名のメンバー");
+                }
+            }
             
             Debug.Log($"Spawned invader party with {partyObjects.Count} members at level {baseLevel}");
         }

@@ -246,6 +246,46 @@ namespace DungeonOwner.Core
             }
         }
 
+        /// <summary>
+        /// 回復エフェクトを表示（パーティ戦闘システム用）
+        /// </summary>
+        public void ShowHealingEffect(Vector3 position)
+        {
+            PlayHealEffect(position);
+            ShowHealText(position, 0f); // 回復量は別途表示される
+        }
+
+        /// <summary>
+        /// パーティ戦闘エフェクトを表示
+        /// </summary>
+        public void ShowPartyBattleEffect(Vector3 position, float damage)
+        {
+            // パーティ戦闘専用のエフェクト
+            ShowDamageText(position, damage, damage > 50f); // 50以上でクリティカル扱い
+            PlayHitEffect(position, damage > 50f);
+            
+            // パーティ戦闘の視覚的表現として複数のエフェクトを表示
+            for (int i = 0; i < 3; i++)
+            {
+                Vector3 offsetPos = position + new Vector3(
+                    Random.Range(-1f, 1f), 
+                    Random.Range(-0.5f, 0.5f), 
+                    0f
+                );
+                
+                StartCoroutine(DelayedEffect(offsetPos, i * 0.1f));
+            }
+        }
+
+        /// <summary>
+        /// 遅延エフェクト用コルーチン
+        /// </summary>
+        private IEnumerator DelayedEffect(Vector3 position, float delay)
+        {
+            yield return new WaitForSeconds(delay);
+            PlayHitEffect(position, false);
+        }
+
         private void OnDestroy()
         {
             if (Instance == this)

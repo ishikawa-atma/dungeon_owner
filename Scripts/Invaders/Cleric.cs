@@ -75,6 +75,10 @@ namespace DungeonOwner.Invaders
             base.UpdateMovement();
         }
 
+        /// <summary>
+        /// 回復スキルを発動
+        /// 要件19.3: パーティ内に回復スキル持ちが存在する場合、パーティメンバーに回復スキルを適用
+        /// </summary>
         private void CastHeal(GameObject target)
         {
             if (target == null) return;
@@ -87,25 +91,38 @@ namespace DungeonOwner.Invaders
                 animator.SetTrigger("Heal");
             }
             
-            // 回復処理
-            var invader = target.GetComponent<IInvader>();
-            if (invader != null)
+            // パーティ内回復の場合
+            if (Party != null && target.GetComponent<IInvader>() != null)
             {
-                float currentHp = invader.Health;
-                float maxHp = invader.MaxHealth;
-                float newHp = Mathf.Min(maxHp, currentHp + healAmount);
+                // パーティ全体に回復を適用
+                Party.ApplyPartyHealing(healAmount * 0.7f); // パーティ回復は個別回復より少し弱く
+                Debug.Log($"{name} cast party heal for {healAmount * 0.7f} to {Party.Members.Count} members");
                 
-                // BaseInvaderの場合は直接回復
-                var baseInvader = target.GetComponent<BaseInvader>();
-                if (baseInvader != null)
-                {
-                    baseInvader.currentHealth = newHp;
-                    Debug.Log($"{name} healed {target.name} for {healAmount}. HP: {newHp}/{maxHp}");
-                }
+                // パーティ回復エフェクト
+                CreatePartyHealEffect();
             }
-            
-            // 回復エフェクトを対象に表示
-            CreateHealEffect(target.transform.position);
+            else
+            {
+                // 単体回復処理
+                var invader = target.GetComponent<IInvader>();
+                if (invader != null)
+                {
+                    float currentHp = invader.Health;
+                    float maxHp = invader.MaxHealth;
+                    float newHp = Mathf.Min(maxHp, currentHp + healAmount);
+                    
+                    // BaseInvaderの場合は直接回復
+                    var baseInvader = target.GetComponent<BaseInvader>();
+                    if (baseInvader != null)
+                    {
+                        baseInvader.currentHealth = newHp;
+                        Debug.Log($"{name} healed {target.name} for {healAmount}. HP: {newHp}/{maxHp}");
+                    }
+                }
+                
+                // 単体回復エフェクトを対象に表示
+                CreateHealEffect(target.transform.position);
+            }
         }
 
         private IInvader FindMostInjuredPartyMember()
@@ -153,9 +170,39 @@ namespace DungeonOwner.Invaders
 
         private void CreateHealEffect(Vector3 position)
         {
-            // 回復エフェクトの生成（パーティクルシステムなど）
-            // TODO: 実際のエフェクトプレハブを使用
-            Debug.Log($"Heal effect created at {position}");
+            // CombatEffectsシステムを使用
+            if (Core.CombatEffects.Instance != null)
+            {
+                Core.CombatEffects.Instance.ShowHealingEffect(position);
+            }
+            else
+            {
+                // フォールバック
+                Debug.Log($"Heal effect created at {position}");
+            }
+        }
+
+        /// <summary>
+        /// パーティ回復エフェクトを作成
+        /// </summary>
+        private void CreatePartyHealEffect()
+        {
+            if (Party == null) return;
+
+            // パーティメンバー全員に回復エフェクトを表示
+            foreach (var member in Party.Members)
+            {
+                if (member.Health > 0)
+                {
+                    CreateHealEffect(member.Position);
+                }
+            }
+
+            // パーティ中央にも特別なエフェクトを表示
+            if (Core.CombatEffects.Instance != null)
+            {
+                Core.CombatEffects.Instance.ShowHealingEffect(Party.Position);
+            }
         }
 
         protected override void AttackEnemy(GameObject enemy)
