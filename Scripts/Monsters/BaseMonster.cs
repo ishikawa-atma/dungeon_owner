@@ -4,7 +4,7 @@ using DungeonOwner.Interfaces;
 
 namespace DungeonOwner.Monsters
 {
-    public abstract class BaseMonster : MonoBehaviour, IMonster, ICharacter
+    public abstract class BaseMonster : MonoBehaviour, IMonster, ICharacter, ICharacterBase
     {
         [Header("Monster Configuration")]
         [SerializeField] protected MonsterData monsterData;
@@ -215,6 +215,13 @@ namespace DungeonOwner.Monsters
         {
             isDead = true;
             SetState(MonsterState.Dead);
+            
+            // 戦闘状況をクリア
+            if (Core.CombatDetector.Instance != null)
+            {
+                Core.CombatDetector.Instance.ClearCombatEngagements(gameObject);
+            }
+            
             OnDeath();
         }
 

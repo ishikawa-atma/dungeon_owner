@@ -156,16 +156,13 @@ namespace DungeonOwner.Invaders
 
         protected virtual void UpdateFighting()
         {
-            // 戦闘中の処理
-            if (Time.time > lastAttackTime + attackCooldown)
+            // CombatDetectorとCombatManagerが戦闘を処理するため、
+            // ここでは戦闘アニメーションと状態管理のみ行う
+            
+            if (Core.CombatDetector.Instance != null)
             {
-                // 攻撃可能な敵を探す
-                var nearbyEnemies = FindNearbyEnemies();
-                if (nearbyEnemies.Count > 0)
-                {
-                    AttackEnemy(nearbyEnemies[0]);
-                }
-                else
+                var enemies = Core.CombatDetector.Instance.GetCombatEnemies(gameObject);
+                if (enemies.Count == 0)
                 {
                     // 敵がいなくなったら移動状態に戻る
                     SetState(InvaderState.Moving);
@@ -209,10 +206,13 @@ namespace DungeonOwner.Invaders
 
         protected virtual void CheckForEnemies()
         {
-            var enemies = FindNearbyEnemies();
-            if (enemies.Count > 0)
+            // CombatDetectorが戦闘検出を処理するため、ここでは状態チェックのみ
+            if (Core.CombatDetector.Instance != null && Core.CombatDetector.Instance.IsInCombat(gameObject))
             {
-                SetState(InvaderState.Fighting);
+                if (currentState != InvaderState.Fighting)
+                {
+                    SetState(InvaderState.Fighting);
+                }
             }
         }
 
@@ -368,6 +368,12 @@ namespace DungeonOwner.Invaders
                 animator.SetTrigger("Die");
             }
             
+            // 戦闘状況をクリア
+            if (Core.CombatDetector.Instance != null)
+            {
+                Core.CombatDetector.Instance.ClearCombatEngagements(gameObject);
+            }
+            
             // 報酬処理
             GiveRewards();
             
@@ -422,6 +428,11 @@ namespace DungeonOwner.Invaders
         {
             level = Mathf.Max(1, newLevel);
             InitializeInvader();
+        }
+
+        public float GetAttackPower()
+        {
+            return attackPower;
         }
 
         // デバッグ用

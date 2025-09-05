@@ -4,17 +4,14 @@ namespace DungeonOwner.Interfaces
 {
     /// <summary>
     /// モンスターと侵入者の共通基底インターフェース
+    /// 戦闘システムで使用する共通プロパティとメソッドを定義
     /// </summary>
     public interface ICharacterBase
     {
-        int Level { get; }
+        Vector2 Position { get; set; }
         float Health { get; }
         float MaxHealth { get; }
-        Vector2 Position { get; set; }
-        IParty Party { get; set; }
         
         void TakeDamage(float damage);
-        void JoinParty(IParty party);
-        void LeaveParty();
     }
 }
