@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using UnityEngine;
+using DungeonOwner.Data;
 
 namespace DungeonOwner.Managers
 {
@@ -121,13 +122,23 @@ namespace DungeonOwner.Managers
         
         /// <summary>
         /// 退避スポット内のモンスターを売却
+        /// 要件5.1: 退避スポット内のモンスターを選択して売却オプションを表示
+        /// 要件5.2: 購入価格の一定割合を金貨で返還
+        /// 要件5.3: モンスターを完全に除去
         /// </summary>
         public bool SellMonster(IMonster monster)
         {
-            if (!shelterMonsters.Contains(monster))
+            if (!CanSellMonster(monster))
             {
-                Debug.LogWarning("指定されたモンスターは退避スポットにいません");
                 return false;
+            }
+            
+            // 売却価格を計算して金貨を付与
+            int sellPrice = CalculateMonsterSellPrice(monster);
+            var resourceManager = FindObjectOfType<ResourceManager>();
+            if (resourceManager != null)
+            {
+                resourceManager.AddGold(sellPrice);
             }
             
             // 退避スポットから除去
@@ -140,9 +151,83 @@ namespace DungeonOwner.Managers
             }
             
             OnMonsterSold?.Invoke(monster);
-            Debug.Log($"モンスター {monster.Type} を売却しました");
+            Debug.Log($"モンスター {monster.Type} を {sellPrice} 金貨で売却しました");
             
             return true;
+        }
+        
+        /// <summary>
+        /// モンスターを売却できるかチェック
+        /// 要件5.4: 階層配置中のモンスターは売却を無効化
+        /// 要件5.5: 自キャラクターは売却を無効化
+        /// </summary>
+        public bool CanSellMonster(IMonster monster)
+        {
+            if (monster == null)
+            {
+                Debug.LogWarning("モンスターが null です");
+                return false;
+            }
+            
+            if (!shelterMonsters.Contains(monster))
+            {
+                Debug.LogWarning("指定されたモンスターは退避スポットにいません");
+                return false;
+            }
+            
+            // 自キャラクターは売却不可
+            if (IsPlayerCharacter(monster))
+            {
+                Debug.LogWarning("自キャラクターは売却できません");
+                return false;
+            }
+            
+            return true;
+        }
+        
+        /// <summary>
+        /// モンスターの売却価格を計算
+        /// 要件5.2: 購入価格の一定割合を金貨で返還
+        /// </summary>
+        public int CalculateMonsterSellPrice(IMonster monster)
+        {
+            if (monster == null) return 0;
+            
+            // DataManagerからモンスターデータを取得
+            var dataManager = DataManager.Instance;
+            if (dataManager != null)
+            {
+                var monsterData = dataManager.GetMonsterData(monster.Type);
+                if (monsterData != null)
+                {
+                    // MonsterDataの売却価格メソッドを使用
+                    int basePrice = monsterData.GetSellPrice();
+                    
+                    // レベルによる補正（レベル1以上で10%ずつ増加）
+                    float levelMultiplier = 1f + (monster.Level - 1) * 0.1f;
+                    
+                    return Mathf.RoundToInt(basePrice * levelMultiplier);
+                }
+            }
+            
+            // フォールバック: ResourceManagerの計算を使用
+            var resourceManager = FindObjectOfType<ResourceManager>();
+            if (resourceManager != null)
+            {
+                return resourceManager.CalculateMonsterSellPrice(monster);
+            }
+            
+            // 最終フォールバック
+            return 50;
+        }
+        
+        /// <summary>
+        /// モンスターが自キャラクターかどうかチェック
+        /// </summary>
+        private bool IsPlayerCharacter(IMonster monster)
+        {
+            // BasePlayerCharacterクラスかどうかで判定
+            return monster is DungeonOwner.PlayerCharacters.BasePlayerCharacter;
         }
         
         /// <summary>

@@ -29,6 +29,13 @@ namespace DungeonOwner.UI
         [SerializeField] private Transform floorButtonParent;
         [SerializeField] private GameObject floorButtonPrefab;
         
+        [Header("売却確認UI")]
+        [SerializeField] private GameObject sellConfirmationPanel;
+        [SerializeField] private Text sellConfirmationText;
+        [SerializeField] private Text sellPriceText;
+        [SerializeField] private Button confirmSellButton;
+        [SerializeField] private Button cancelSellButton;
+        
         private ShelterManager shelterManager;
         private FloorSystem floorSystem;
         private ResourceManager resourceManager;
@@ -79,6 +86,12 @@ namespace DungeonOwner.UI
             if (cancelButton != null)
                 cancelButton.onClick.AddListener(CancelSelection);
             
+            if (confirmSellButton != null)
+                confirmSellButton.onClick.AddListener(ConfirmSellMonster);
+            
+            if (cancelSellButton != null)
+                cancelSellButton.onClick.AddListener(CancelSellConfirmation);
+            
             // 初期状態では非表示
             if (shelterPanel != null)
                 shelterPanel.SetActive(false);
@@ -88,6 +101,9 @@ namespace DungeonOwner.UI
             
             if (floorSelectionPanel != null)
                 floorSelectionPanel.SetActive(false);
+            
+            if (sellConfirmationPanel != null)
+                sellConfirmationPanel.SetActive(false);
         }
         
         /// <summary>
@@ -272,20 +288,79 @@ namespace DungeonOwner.UI
         }
         
         /// <summary>
-        /// 選択されたモンスターを売却
+        /// 選択されたモンスターの売却確認を表示
+        /// 要件5.1: 退避スポット内のモンスターを選択して売却オプションを表示
+        /// 要件5.3: 売却確認UIと安全機能
         /// </summary>
         private void SellSelectedMonster()
         {
             if (selectedMonster == null || shelterManager == null)
                 return;
             
-            // 売却確認（簡易版）
+            // 売却可能かチェック
+            if (!shelterManager.CanSellMonster(selectedMonster))
+            {
+                Debug.LogWarning($"モンスター {selectedMonster.Type} は売却できません");
+                return;
+            }
+            
+            ShowSellConfirmation();
+        }
+        
+        /// <summary>
+        /// 売却確認ダイアログを表示
+        /// 要件5.3: 売却確認UIと安全機能
+        /// </summary>
+        private void ShowSellConfirmation()
+        {
+            if (selectedMonster == null || sellConfirmationPanel == null)
+                return;
+            
+            // 売却価格を計算
+            int sellPrice = shelterManager.CalculateMonsterSellPrice(selectedMonster);
+            
+            // 確認テキストを設定
+            if (sellConfirmationText != null)
+            {
+                sellConfirmationText.text = $"{selectedMonster.Type} Lv.{selectedMonster.Level}\nを売却しますか？";
+            }
+            
+            if (sellPriceText != null)
+            {
+                sellPriceText.text = $"売却価格: {sellPrice} 金貨";
+            }
+            
+            // 確認パネルを表示
+            sellConfirmationPanel.SetActive(true);
+        }
+        
+        /// <summary>
+        /// 売却を確定
+        /// 要件5.2: 購入価格の一定割合を金貨で返還
+        /// 要件5.3: モンスターを完全に除去
+        /// </summary>
+        private void ConfirmSellMonster()
+        {
+            if (selectedMonster == null || shelterManager == null)
+                return;
+            
             if (shelterManager.SellMonster(selectedMonster))
             {
                 Debug.Log($"モンスター {selectedMonster.Type} を売却しました");
+                CancelSellConfirmation();
                 CancelSelection();
                 RefreshMonsterList();
+                UpdateCapacityDisplay();
             }
+        }
+        
+        /// <summary>
+        /// 売却確認をキャンセル
+        /// </summary>
+        private void CancelSellConfirmation()
+        {
+            if (sellConfirmationPanel != null)
+                sellConfirmationPanel.SetActive(false);
         }
         
         /// <summary>
@@ -300,6 +375,9 @@ namespace DungeonOwner.UI
             
             if (floorSelectionPanel != null)
                 floorSelectionPanel.SetActive(false);
+            
+            if (sellConfirmationPanel != null)
+                sellConfirmationPanel.SetActive(false);
         }
         
         /// <summary>

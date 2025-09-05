@@ -12,6 +12,7 @@ namespace DungeonOwner.UI
         [SerializeField] private Text monsterNameText;
         [SerializeField] private Text levelText;
         [SerializeField] private Text healthText;
+        [SerializeField] private Text sellPriceText;
         [SerializeField] private Image monsterIcon;
         [SerializeField] private Button selectButton;
         [SerializeField] private Slider healthSlider;
@@ -70,11 +71,34 @@ namespace DungeonOwner.UI
                 manaSlider.value = monster.Mana / monster.MaxMana;
             }
             
+            // 売却価格を表示
+            if (sellPriceText != null)
+            {
+                int sellPrice = CalculateSellPrice();
+                sellPriceText.text = $"売却: {sellPrice}G";
+            }
+            
             // アイコンの設定（実装されている場合）
             if (monsterIcon != null)
             {
                 // TODO: モンスタータイプに応じたアイコンを設定
             }
+        }
+        
+        /// <summary>
+        /// 売却価格を計算
+        /// </summary>
+        private int CalculateSellPrice()
+        {
+            if (monster == null) return 0;
+            
+            var shelterManager = FindObjectOfType<DungeonOwner.Managers.ShelterManager>();
+            if (shelterManager != null)
+            {
+                return shelterManager.CalculateMonsterSellPrice(monster);
+            }
+            
+            return 0;
         }
         
         /// <summary>

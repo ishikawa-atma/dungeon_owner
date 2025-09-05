@@ -241,5 +241,53 @@ namespace DungeonOwner.Core
                 }
             }
         }
+        
+        [ContextMenu("モンスター売却テスト")]
+        public void TestMonsterSelling()
+        {
+            if (shelterManager == null)
+            {
+                shelterManager = FindObjectOfType<ShelterManager>();
+            }
+            
+            var resourceManager = FindObjectOfType<ResourceManager>();
+            
+            if (shelterManager == null || resourceManager == null)
+            {
+                Debug.LogError("必要なマネージャーが見つかりません");
+                return;
+            }
+            
+            if (shelterManager.ShelterMonsters.Count == 0)
+            {
+                Debug.LogWarning("退避スポットにモンスターがいません");
+                return;
+            }
+            
+            var monster = shelterManager.ShelterMonsters[0];
+            int initialGold = resourceManager.Gold;
+            int sellPrice = shelterManager.CalculateMonsterSellPrice(monster);
+            
+            Debug.Log($"=== モンスター売却テスト ===");
+            Debug.Log($"対象: {monster.Type} Lv.{monster.Level}");
+            Debug.Log($"初期金貨: {initialGold}G");
+            Debug.Log($"期待売却価格: {sellPrice}G");
+            
+            bool canSell = shelterManager.CanSellMonster(monster);
+            Debug.Log($"売却可能: {canSell}");
+            
+            if (canSell && shelterManager.SellMonster(monster))
+            {
+                int finalGold = resourceManager.Gold;
+                int goldGained = finalGold - initialGold;
+                Debug.Log($"✓ 売却成功!");
+                Debug.Log($"最終金貨: {finalGold}G (増加: {goldGained}G)");
+                Debug.Log($"期待値と一致: {goldGained == sellPrice}");
+            }
+            else
+            {
+                Debug.Log("✗ 売却失敗");
+            }
+        }
     }
 }

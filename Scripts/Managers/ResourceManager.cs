@@ -159,12 +159,29 @@ namespace DungeonOwner.Managers
 
         /// <summary>
         /// モンスター売却価格を計算
+        /// 要件5.2: 購入価格の一定割合を金貨で返還
         /// </summary>
         public int CalculateMonsterSellPrice(IMonster monster)
         {
             if (monster == null) return 0;
 
-            // 基本価格（購入価格から計算）
+            // DataManagerからモンスターデータを取得して正確な購入価格を使用
+            if (DataManager.Instance != null)
+            {
+                var monsterData = DataManager.Instance.GetMonsterData(monster.Type);
+                if (monsterData != null)
+                {
+                    // MonsterDataの売却価格メソッドを使用（購入価格の70%）
+                    int basePrice = monsterData.GetSellPrice();
+                    
+                    // レベルによる補正
+                    float levelMultiplier = 1f + (monster.Level - 1) * 0.1f;
+                    
+                    return Mathf.RoundToInt(basePrice * levelMultiplier);
+                }
+            }
+
+            // フォールバック: 基本価格から計算
             int purchasePrice = GetMonsterPurchasePrice(monster.Type);
             float sellPrice = purchasePrice * sellPriceRatio;
 
@@ -203,6 +220,7 @@ namespace DungeonOwner.Managers
 
         /// <summary>
         /// モンスター売却処理
+        /// 要件5.2: 購入価格の一定割合を金貨で返還
         /// </summary>
         public bool SellMonster(IMonster monster)
         {
