@@ -99,6 +99,14 @@ namespace DungeonOwner.Core
                 floorExpansionSystemObj.AddComponent<FloorExpansionSystem>();
             }
 
+            // TutorialManagerの確認
+            if (TutorialManager.Instance == null)
+            {
+                Debug.LogWarning("TutorialManager not found. Creating one...");
+                GameObject tutorialManagerObj = new GameObject("TutorialManager");
+                tutorialManagerObj.AddComponent<TutorialManager>();
+            }
+
             // TimeManagerとResourceManagerの連携確認
             InitializeEconomySystem();
             

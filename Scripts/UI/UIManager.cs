@@ -381,6 +381,9 @@ namespace DungeonOwner.UI
                 case GameState.GameOver:
                     ShowGameOverUI();
                     break;
+                case GameState.Tutorial:
+                    ShowTutorialUI();
+                    break;
             }
         }
 
@@ -411,6 +414,18 @@ namespace DungeonOwner.UI
         {
             // ゲームオーバー用のUI表示
             // TODO: ゲームオーバーUIの実装
+        }
+
+        /// <summary>
+        /// チュートリアルUIの表示
+        /// </summary>
+        private void ShowTutorialUI()
+        {
+            // チュートリアル中は通常のゲームプレイUIも表示
+            ShowGameplayUI();
+            
+            // チュートリアル固有のUI調整があれば実行
+            Debug.Log("Tutorial UI mode activated");
         }
 
         /// <summary>
