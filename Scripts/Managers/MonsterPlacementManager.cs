@@ -452,6 +452,95 @@ namespace DungeonOwner.Managers
             Debug.Log($"Cleared all monsters from floor {floorIndex}");
         }
 
+        /// <summary>
+        /// 全ての配置されたモンスターを取得（セーブ用）
+        /// </summary>
+        public List<IMonster> GetAllPlacedMonsters()
+        {
+            List<IMonster> allMonsters = new List<IMonster>();
+            
+            foreach (var kvp in floorMonsters)
+            {
+                // null参照を除去
+                kvp.Value.RemoveAll(m => m == null || (m as MonoBehaviour) == null);
+                allMonsters.AddRange(kvp.Value);
+            }
+            
+            return allMonsters;
+        }
+
+        /// <summary>
+        /// モンスターの階層インデックスを取得
+        /// </summary>
+        public int GetMonsterFloorIndex(IMonster monster)
+        {
+            foreach (var kvp in floorMonsters)
+            {
+                if (kvp.Value.Contains(monster))
+                {
+                    return kvp.Key;
+                }
+            }
+            return -1;
+        }
+
+        /// <summary>
+        /// セーブデータからモンスターを復元
+        /// </summary>
+        public void RestoreMonster(MonsterSaveData monsterData)
+        {
+            if (monsterData == null || monsterData.isInShelter) return;
+
+            MonsterData data = GetMonsterData(monsterData.type);
+            if (data == null || data.prefab == null)
+            {
+                Debug.LogError($"Cannot restore monster: data not found for {monsterData.type}");
+                return;
+            }
+
+            // モンスターオブジェクトを生成
+            GameObject monsterObj = Instantiate(data.prefab, monsterContainer);
+            monsterObj.transform.position = new Vector3(monsterData.position.x, monsterData.position.y, 0);
+            monsterObj.name = $"{monsterData.type}_{monsterData.floorIndex}_restored";
+
+            // モンスターコンポーネントを取得・設定
+            IMonster monster = monsterObj.GetComponent<IMonster>();
+            if (monster == null)
+            {
+                Debug.LogError($"Restored monster prefab for {monsterData.type} does not have IMonster component");
+                Destroy(monsterObj);
+                return;
+            }
+
+            // BaseMonsterコンポーネントにデータを設定
+            BaseMonster baseMonster = monsterObj.GetComponent<BaseMonster>();
+            if (baseMonster != null)
+            {
+                baseMonster.SetMonsterData(data);
+                baseMonster.Level = monsterData.level;
+                baseMonster.SetHealth(monsterData.currentHealth);
+                baseMonster.SetMana(monsterData.currentMana);
+            }
+
+            // 階層システムに登録
+            if (FloorSystem.Instance.PlaceMonster(monsterData.floorIndex, monsterObj, monsterData.position))
+            {
+                // 内部管理に追加
+                if (!floorMonsters.ContainsKey(monsterData.floorIndex))
+                {
+                    floorMonsters[monsterData.floorIndex] = new List<IMonster>();
+                }
+                floorMonsters[monsterData.floorIndex].Add(monster);
+
+                Debug.Log($"Restored {monsterData.type} on floor {monsterData.floorIndex}");
+            }
+            else
+            {
+                Debug.LogError($"Failed to place restored monster in FloorSystem");
+                Destroy(monsterObj);
+            }
+        }
+
         // デバッグ用メソッド
         public void DebugPrintFloorInfo()
         {

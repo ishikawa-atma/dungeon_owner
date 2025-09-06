@@ -281,5 +281,22 @@ namespace DungeonOwner.Core
                 PauseGame();
             }
         }
+
+        /// <summary>
+        /// セーブデータ用の階層設定
+        /// </summary>
+        public void SetCurrentFloor(int floor)
+        {
+            CurrentFloor = Mathf.Max(1, floor);
+            OnFloorChanged?.Invoke(CurrentFloor);
+        }
+
+        /// <summary>
+        /// 現在の階層を取得
+        /// </summary>
+        public int GetCurrentFloor()
+        {
+            return CurrentFloor;
+        }
     }
 }

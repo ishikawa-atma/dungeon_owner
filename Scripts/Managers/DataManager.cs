@@ -167,5 +167,21 @@ namespace DungeonOwner.Data
             if (trapItemDatabase.Count == 0) return null;
             return trapItemDatabase[Random.Range(0, trapItemDatabase.Count)];
         }
+
+        // セーブ/ロード用メソッド
+        private PlayerCharacterType selectedPlayerCharacterType = PlayerCharacterType.Warrior;
+
+        /// <summary>
+        /// 選択された自キャラクタータイプを設定
+        /// </summary>
+        public void SetSelectedPlayerCharacter(PlayerCharacterType type)
+        {
+            selectedPlayerCharacterType = type;
+        }
+
+        /// <summary>
+        /// 選択された自キャラクタータイプを取得
+        /// </summary>
+        public PlayerCharacterType SelectedPlayerCharacterType => selectedPlayerCharacterType;
     }
 }

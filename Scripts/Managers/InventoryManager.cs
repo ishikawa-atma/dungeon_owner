@@ -286,12 +286,50 @@ namespace Scripts.Managers
             
             OnInventoryChanged?.Invoke();
         }
+
+        /// <summary>
+        /// 全てのアイテムを取得（セーブ用）
+        /// </summary>
+        public List<TrapItemStack> GetAllItems()
+        {
+            return new List<TrapItemStack>(inventory);
+        }
+
+        /// <summary>
+        /// セーブデータからアイテムを復元
+        /// </summary>
+        public void RestoreItem(TrapItemSaveData itemData)
+        {
+            if (itemData == null) return;
+
+            var dataManager = DungeonOwner.Data.DataManager.Instance;
+            if (dataManager == null) return;
+
+            var trapItemData = dataManager.GetTrapItemData(itemData.type);
+            if (trapItemData != null)
+            {
+                AddItem(trapItemData, itemData.quantity);
+                Debug.Log($"Restored {itemData.quantity} {itemData.type} items");
+            }
+        }
     }
     
     [System.Serializable]
     public class TrapItemSaveData
     {
-        public TrapItemType itemType;
-        public int count;
+        public TrapItemType type;
+        public int quantity;
+        
+        public TrapItemSaveData()
+        {
+            type = TrapItemType.ExplosiveTrap;
+            quantity = 0;
+        }
+        
+        public TrapItemSaveData(TrapItemType itemType, int itemQuantity)
+        {
+            type = itemType;
+            quantity = itemQuantity;
+        }
     }
 }

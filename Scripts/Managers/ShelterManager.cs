@@ -10,6 +10,8 @@ namespace DungeonOwner.Managers
     /// </summary>
     public class ShelterManager : MonoBehaviour
     {
+        public static ShelterManager Instance { get; private set; }
+        
         [Header("退避スポット設定")]
         [SerializeField] private int maxCapacity = 50; // 最大収容数
         [SerializeField] private float recoveryRate = 2.0f; // HP/MP回復速度倍率
@@ -29,6 +31,20 @@ namespace DungeonOwner.Managers
         public System.Action<IMonster> OnMonsterSold;
         
         private void Awake()
+        {
+            if (Instance == null)
+            {
+                Instance = this;
+                DontDestroyOnLoad(gameObject);
+                InitializeManager();
+            }
+            else
+            {
+                Destroy(gameObject);
+            }
+        }
+        
+        private void InitializeManager()
         {
             placementManager = FindObjectOfType<MonsterPlacementManager>();
             floorSystem = FindObjectOfType<FloorSystem>();
@@ -297,6 +313,53 @@ namespace DungeonOwner.Managers
             return floorSystem.GetAvailablePositions(floorIndex);
         }
         
+        /// <summary>
+        /// セーブデータからモンスターを復元
+        /// </summary>
+        public void RestoreMonster(MonsterSaveData monsterData)
+        {
+            if (monsterData == null || !monsterData.isInShelter) return;
+
+            var dataManager = DataManager.Instance;
+            if (dataManager == null) return;
+
+            var data = dataManager.GetMonsterData(monsterData.type);
+            if (data == null || data.prefab == null)
+            {
+                Debug.LogError($"Cannot restore shelter monster: data not found for {monsterData.type}");
+                return;
+            }
+
+            // モンスターオブジェクトを生成（非アクティブ状態）
+            GameObject monsterObj = Instantiate(data.prefab);
+            monsterObj.name = $"{monsterData.type}_shelter_restored";
+            monsterObj.SetActive(false);
+
+            // モンスターコンポーネントを取得・設定
+            IMonster monster = monsterObj.GetComponent<IMonster>();
+            if (monster == null)
+            {
+                Debug.LogError($"Restored shelter monster prefab for {monsterData.type} does not have IMonster component");
+                Destroy(monsterObj);
+                return;
+            }
+
+            // BaseMonsterコンポーネントにデータを設定
+            var baseMonster = monsterObj.GetComponent<Monsters.BaseMonster>();
+            if (baseMonster != null)
+            {
+                baseMonster.SetMonsterData(data);
+                baseMonster.Level = monsterData.level;
+                baseMonster.SetHealth(monsterData.currentHealth);
+                baseMonster.SetMana(monsterData.currentMana);
+            }
+
+            // 退避スポットに追加
+            shelterMonsters.Add(monster);
+
+            Debug.Log($"Restored {monsterData.type} in shelter");
+        }
+
         /// <summary>
         /// 退避スポットをクリア（デバッグ用）
         /// </summary>

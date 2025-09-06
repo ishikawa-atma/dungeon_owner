@@ -421,6 +421,40 @@ namespace DungeonOwner.Core
             }
         }
 
+        /// <summary>
+        /// セーブデータから階層を復元
+        /// </summary>
+        public void RestoreFloor(FloorData floorData)
+        {
+            if (floorData == null) return;
+
+            Floor floor = GetFloor(floorData.floorIndex);
+            if (floor == null)
+            {
+                floor = CreateFloor(floorData.floorIndex);
+            }
+
+            if (floor != null)
+            {
+                // 階段位置を復元
+                floor.upStairPosition = floorData.upStairPosition;
+                floor.downStairPosition = floorData.downStairPosition;
+
+                // 壁位置を復元
+                floor.wallPositions.Clear();
+                floor.wallPositions.AddRange(floorData.wallPositions);
+
+                // ボス情報を復元
+                if (floorData.hasBoss)
+                {
+                    floor.bossType = floorData.bossType;
+                    floor.bossLevel = floorData.bossLevel;
+                }
+
+                Debug.Log($"Restored floor {floorData.floorIndex}");
+            }
+        }
+
         // デバッグ用メソッド
         public void DebugPrintFloorInfo()
         {

@@ -65,6 +65,7 @@ namespace DungeonOwner.Data
 
     public enum BossType
     {
+        None,
         DragonLord,
         LichKing,
         DemonGeneral,
@@ -74,6 +75,7 @@ namespace DungeonOwner.Data
 
     public enum TrapItemType
     {
+        ExplosiveTrap,
         SpikeTrap,
         FireTrap,
         IceTrap,
