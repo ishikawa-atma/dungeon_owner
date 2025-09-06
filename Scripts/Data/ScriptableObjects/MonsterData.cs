@@ -62,16 +62,5 @@ namespace DungeonOwner.Data
         }
     }
 
-    public enum MonsterAbilityType
-    {
-        None,
-        AutoHeal,        // スライム：自動体力回復
-        AutoRevive,      // スケルトン・ゴースト：自動復活
-        HighDefense,     // ゴーレム：高防御力
-        FastAttack,      // ゴブリン：高速攻撃
-        HighSpeed,       // ウルフ：高速移動
-        AreaAttack,      // ドラゴン：範囲攻撃
-        MagicAttack,     // リッチ：魔法攻撃
-        LifeDrain        // デーモン：生命力吸収
-    }
+
 }

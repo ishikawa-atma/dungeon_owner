@@ -122,7 +122,7 @@ namespace DungeonOwner.Core
 
             if (IsDayComplete)
             {
-                CompletDay();
+                CompleteDay();
             }
         }
 
@@ -146,7 +146,7 @@ namespace DungeonOwner.Core
             }
         }
 
-        private void CompletDay()
+        private void CompleteDay()
         {
             currentDay++;
             currentDayTime = 0f;

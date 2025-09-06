@@ -2,9 +2,7 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace DungeonOwner
-{
-    using DungeonOwner.Data.Enums;
+namespace DungeonOwner.Data
 {
     /// <summary>
     /// ゲームの保存データ構造

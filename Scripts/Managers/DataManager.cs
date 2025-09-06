@@ -1,8 +1,7 @@
 using UnityEngine;
 using System.Collections.Generic;
 using System.Linq;
-using Scripts.Data.ScriptableObjects;
-using Scripts.Data.Enums;
+using DungeonOwner.Data;
 
 namespace DungeonOwner.Data
 {

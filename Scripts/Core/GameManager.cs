@@ -1,16 +1,8 @@
 using UnityEngine;
 using System;
+using DungeonOwner.Data;
 
 namespace DungeonOwner.Core
-{
-    public enum GameState
-    {
-        MainMenu,
-        Playing,
-        Paused,
-        GameOver,
-        Tutorial
-    }
 
     public class GameManager : MonoBehaviour
     {
