@@ -335,9 +335,25 @@ namespace DungeonOwner.Managers
             // 1階層の上り階段位置を取得
             Vector2 spawnPosition = GetSpawnPosition();
             
-            // 侵入者オブジェクトを生成
-            GameObject invaderObj = Instantiate(invaderData.prefab, invaderContainer);
-            invaderObj.transform.position = new Vector3(spawnPosition.x, spawnPosition.y, 0);
+            // オブジェクトプールから侵入者オブジェクトを取得
+            GameObject invaderObj = null;
+            string poolName = $"Invader_{invaderData.type}";
+            
+            if (ObjectPool.Instance != null)
+            {
+                invaderObj = ObjectPool.Instance.Spawn(poolName, 
+                    new Vector3(spawnPosition.x, spawnPosition.y, 0), 
+                    Quaternion.identity, 
+                    invaderContainer);
+            }
+            
+            // プールから取得できない場合は従来の方法で生成
+            if (invaderObj == null)
+            {
+                invaderObj = Instantiate(invaderData.prefab, invaderContainer);
+                invaderObj.transform.position = new Vector3(spawnPosition.x, spawnPosition.y, 0);
+            }
+            
             invaderObj.name = $"{invaderData.displayName}_Lv{level}";
 
             // 侵入者コンポーネントを設定
@@ -352,7 +368,7 @@ namespace DungeonOwner.Managers
             var firstFloor = FloorSystem.Instance.GetFloor(1);
             firstFloor?.AddInvader(invaderObj);
 
-            // 出現エフェクト
+            // 出現エフェクト（プールから取得）
             CreateSpawnEffect(spawnPosition);
 
             // カウンター更新
@@ -422,12 +438,26 @@ namespace DungeonOwner.Managers
         {
             if (spawnEffectPrefab != null)
             {
-                GameObject effect = Instantiate(spawnEffectPrefab);
-                effect.transform.position = new Vector3(position.x, position.y, 0);
-                effect.name = "InvaderSpawnEffect";
+                GameObject effect = null;
                 
-                // エフェクトを一定時間後に削除
-                Destroy(effect, 2f);
+                // オブジェクトプールからエフェクトを取得
+                if (ObjectPool.Instance != null)
+                {
+                    effect = ObjectPool.Instance.Spawn("SpawnEffect", 
+                        new Vector3(position.x, position.y, 0), 
+                        Quaternion.identity);
+                }
+                
+                // プールから取得できない場合は従来の方法
+                if (effect == null)
+                {
+                    effect = Instantiate(spawnEffectPrefab);
+                    effect.transform.position = new Vector3(position.x, position.y, 0);
+                    effect.name = "InvaderSpawnEffect";
+                    
+                    // エフェクトを一定時間後に削除
+                    Destroy(effect, 2f);
+                }
                 
                 Debug.Log($"Created spawn effect at {position}");
             }
@@ -442,6 +472,17 @@ namespace DungeonOwner.Managers
         {
             currentActiveInvaders = Mathf.Max(0, currentActiveInvaders - 1);
             OnInvaderDefeated?.Invoke(invader);
+            
+            // オブジェクトプールに返却
+            if (ObjectPool.Instance != null)
+            {
+                ObjectPool.Instance.Return(invader);
+            }
+            else
+            {
+                // プールが利用できない場合は従来通り破棄
+                Destroy(invader);
+            }
             
             // 連続出現防止のタイマーをリセット（撃破時は即座に次の出現を許可しない）
             lastSpawnTime = Time.time;

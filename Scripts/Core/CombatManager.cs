@@ -389,25 +389,48 @@ namespace DungeonOwner.Core
             }
             else
             {
-                // フォールバック: 基本エフェクト
+                // フォールバック: オブジェクトプール対応エフェクト
                 if (damageEffectPrefab != null)
                 {
                     Vector3 effectPos = defenderPos + Vector3.up * 0.5f;
-                    GameObject effect = Instantiate(damageEffectPrefab, effectPos, Quaternion.identity);
+                    GameObject effect = null;
+                    
+                    // オブジェクトプールからエフェクトを取得
+                    if (ObjectPool.Instance != null)
+                    {
+                        effect = ObjectPool.Instance.Spawn("DamageEffect", effectPos, Quaternion.identity);
+                    }
+                    
+                    // プールから取得できない場合は従来の方法
+                    if (effect == null)
+                    {
+                        effect = Instantiate(damageEffectPrefab, effectPos, Quaternion.identity);
+                        Destroy(effect, 1f);
+                    }
                     
                     var textComponent = effect.GetComponentInChildren<TMPro.TextMeshPro>();
                     if (textComponent != null)
                     {
                         textComponent.text = Mathf.RoundToInt(damage).ToString();
                     }
-
-                    Destroy(effect, 1f);
                 }
 
                 if (knockbackEffectPrefab != null)
                 {
-                    GameObject effect = Instantiate(knockbackEffectPrefab, defenderPos, Quaternion.identity);
-                    Destroy(effect, 0.5f);
+                    GameObject effect = null;
+                    
+                    // オブジェクトプールからエフェクトを取得
+                    if (ObjectPool.Instance != null)
+                    {
+                        effect = ObjectPool.Instance.Spawn("KnockbackEffect", defenderPos, Quaternion.identity);
+                    }
+                    
+                    // プールから取得できない場合は従来の方法
+                    if (effect == null)
+                    {
+                        effect = Instantiate(knockbackEffectPrefab, defenderPos, Quaternion.identity);
+                        Destroy(effect, 0.5f);
+                    }
                 }
             }
 

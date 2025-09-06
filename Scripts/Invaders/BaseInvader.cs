@@ -5,7 +5,7 @@ using DungeonOwner.Core;
 
 namespace DungeonOwner.Invaders
 {
-    public class BaseInvader : MonoBehaviour, IInvader, ICharacterBase, ITimeScalable
+    public class BaseInvader : MonoBehaviour, IInvader, ICharacterBase, ITimeScalable, IPoolable
     {
         [Header("Invader Configuration")]
         [SerializeField] protected InvaderData invaderData;
@@ -402,8 +402,16 @@ namespace DungeonOwner.Invaders
             
             Debug.Log($"{name} has been defeated!");
             
-            // オブジェクトを破棄（エフェクト完了後）
-            Destroy(gameObject, 1f);
+            // InvaderSpawnerに撃破を通知（オブジェクトプールに返却される）
+            if (Managers.InvaderSpawner.Instance != null)
+            {
+                Managers.InvaderSpawner.Instance.OnInvaderDestroyed(gameObject);
+            }
+            else
+            {
+                // フォールバック: 従来の破棄処理
+                Destroy(gameObject, 1f);
+            }
         }
 
         protected virtual void GiveRewards()
@@ -594,6 +602,73 @@ namespace DungeonOwner.Invaders
             {
                 TimeManager.Instance.UnregisterTimeScalable(this);
             }
+        }
+
+        // IPoolable 実装
+        public virtual void OnPoolCreated()
+        {
+            // プール作成時の初期化
+            Debug.Log($"Invader {name} created in pool");
+        }
+
+        public virtual void OnSpawn()
+        {
+            // プールから取得時の初期化
+            gameObject.SetActive(true);
+            
+            // ステータスをリセット
+            if (invaderData != null)
+            {
+                currentHealth = MaxHealth;
+                currentState = InvaderState.Spawning;
+                isMoving = false;
+                targetPosition = Vector2.zero;
+                lastAttackTime = Time.time;
+            }
+            
+            // システムに再登録
+            RegisterLevelDisplay();
+            RegisterTimeScalable();
+            
+            // 出現エフェクト
+            PlaySpawnEffect();
+            
+            Debug.Log($"Invader {name} spawned from pool");
+        }
+
+        public virtual void OnReturn()
+        {
+            // プールに返却時のクリーンアップ
+            
+            // 戦闘状況をクリア
+            if (Core.CombatDetector.Instance != null)
+            {
+                Core.CombatDetector.Instance.ClearCombatEngagements(gameObject);
+            }
+            
+            // システムから登録解除
+            UnregisterLevelDisplay();
+            UnregisterTimeScalable();
+            
+            // パーティから離脱
+            LeaveParty();
+            
+            // 階層から除去
+            RemoveFromFloor();
+            
+            // 状態をリセット
+            currentState = InvaderState.Dead;
+            isMoving = false;
+            targetPosition = Vector2.zero;
+            
+            // アニメーションをリセット
+            if (animator != null)
+            {
+                animator.Rebind();
+                animator.Update(0f);
+            }
+            
+            Debug.Log($"Invader {name} returned to pool");
         }
 
         // デバッグ用

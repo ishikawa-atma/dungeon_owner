@@ -67,6 +67,9 @@ namespace DungeonOwner.Core
         /// </summary>
         private void InitializeManagers()
         {
+            // パフォーマンス管理システムの初期化（最優先）
+            InitializePerformanceSystem();
+
             // ResourceManagerの確認
             if (Managers.ResourceManager.Instance == null)
             {
@@ -148,6 +151,48 @@ namespace DungeonOwner.Core
         }
 
         /// <summary>
+        /// パフォーマンス管理システムの初期化
+        /// </summary>
+        private void InitializePerformanceSystem()
+        {
+            if (PerformanceManager.Instance == null)
+            {
+                Debug.Log("Initializing Performance Management System...");
+                GameObject performanceManagerObj = new GameObject("PerformanceManager");
+                performanceManagerObj.AddComponent<PerformanceManager>();
+                
+                // パフォーマンスシステム初期化完了イベントを購読
+                PerformanceManager.Instance.OnPerformanceSystemsInitialized += OnPerformanceSystemsReady;
+            }
+            else
+            {
+                Debug.Log("Performance Management System already initialized");
+            }
+        }
+
+        /// <summary>
+        /// パフォーマンスシステム準備完了時の処理
+        /// </summary>
+        private void OnPerformanceSystemsReady()
+        {
+            Debug.Log("Performance systems are ready - game optimization enabled");
+            
+            // パフォーマンス最適化の設定
+            if (PerformanceManager.Instance != null)
+            {
+                // 自動最適化を有効化
+                PerformanceManager.Instance.SetAutoOptimizationEnabled(true);
+                
+                // モバイル向けの設定
+                #if UNITY_ANDROID || UNITY_IOS
+                PerformanceManager.Instance.SetCriticalPerformanceThreshold(45f); // モバイルは45FPS
+                #else
+                PerformanceManager.Instance.SetCriticalPerformanceThreshold(50f); // PCは50FPS
+                #endif
+            }
+        }
+
+        /// <summary>
         /// パーティ戦闘システムの初期化
         /// </summary>
         private void InitializePartyCombatSystem()
@@ -179,6 +224,12 @@ namespace DungeonOwner.Core
             if (TimeManager.Instance != null)
             {
                 TimeManager.Instance.OnDayCompleted -= OnDayCompleted;
+            }
+
+            // PerformanceManagerのイベント購読を解除
+            if (PerformanceManager.Instance != null)
+            {
+                PerformanceManager.Instance.OnPerformanceSystemsInitialized -= OnPerformanceSystemsReady;
             }
         }
 
