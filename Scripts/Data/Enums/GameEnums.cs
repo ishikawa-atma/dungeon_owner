@@ -116,4 +116,14 @@ namespace DungeonOwner.Data
         Taunt,              // 挑発
         Stealth             // ステルス
     }
+
+    public enum GameState
+    {
+        MainMenu,
+        Playing,
+        Paused,
+        GameOver,
+        Renovation,
+        Tutorial
+    }
 }

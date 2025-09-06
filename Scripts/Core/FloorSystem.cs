@@ -378,6 +378,49 @@ namespace DungeonOwner.Core
             return floor?.maxMonsters ?? 0;
         }
 
+        /// <summary>
+        /// 改装システム用: 階層にキャラクターが追加された時の通知
+        /// </summary>
+        public void NotifyCharacterSpawned(int floorIndex, GameObject character)
+        {
+            // 改装システムに通知
+            if (FloorRenovationSystem.Instance != null)
+            {
+                FloorRenovationSystem.Instance.OnCharacterSpawned(floorIndex);
+            }
+
+            Debug.Log($"Character spawned on floor {floorIndex}: {character.name}");
+        }
+
+        /// <summary>
+        /// 改装システム用: 指定階層が改装可能かチェック
+        /// </summary>
+        public bool IsFloorRenovatable(int floorIndex)
+        {
+            Floor floor = GetFloor(floorIndex);
+            if (floor == null)
+            {
+                return false;
+            }
+
+            // 階層が空で、改装システムが利用可能な場合のみ改装可能
+            return floor.IsEmpty() && FloorRenovationSystem.Instance != null;
+        }
+
+        /// <summary>
+        /// 改装システム用: 階層の壁配置を更新
+        /// </summary>
+        public void UpdateFloorWalls(int floorIndex, List<Vector2> newWallPositions)
+        {
+            Floor floor = GetFloor(floorIndex);
+            if (floor != null)
+            {
+                floor.wallPositions.Clear();
+                floor.wallPositions.AddRange(newWallPositions);
+                Debug.Log($"Updated walls for floor {floorIndex}: {newWallPositions.Count} walls");
+            }
+        }
+
         // デバッグ用メソッド
         public void DebugPrintFloorInfo()
         {
@@ -389,7 +432,7 @@ namespace DungeonOwner.Core
             {
                 int monsterCount = floor.placedMonsters.Count(m => m != null);
                 int invaderCount = floor.activeInvaders.Count(i => i != null);
-                Debug.Log($"Floor {floor.floorIndex}: Monsters={monsterCount}, Invaders={invaderCount}, HasCore={floor.hasCore}, Boss={floor.bossType}");
+                Debug.Log($"Floor {floor.floorIndex}: Monsters={monsterCount}, Invaders={invaderCount}, HasCore={floor.hasCore}, Boss={floor.bossType}, Walls={floor.wallPositions.Count}");
             }
         }
     }
