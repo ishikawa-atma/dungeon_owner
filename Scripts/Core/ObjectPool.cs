@@ -409,6 +409,7 @@ namespace DungeonOwner.Core
 
         private void OnGUI()
         {
+#if UNITY_EDITOR
             if (!showPoolStats) return;
 
             GUILayout.BeginArea(new Rect(10, 10, 300, 400));
@@ -426,6 +427,7 @@ namespace DungeonOwner.Core
             }
 
             GUILayout.EndArea();
+#endif
         }
 
         private void OnDestroy()

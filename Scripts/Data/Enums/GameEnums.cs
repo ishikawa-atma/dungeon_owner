@@ -102,30 +102,6 @@ namespace DungeonOwner.Data
         InShelter
     }
 
-    public enum MonsterAbilityType
-    {
-        // パッシブアビリティ
-        AutoHeal,           // 自動体力回復
-        AutoRevive,         // 自動復活
-        
-        // アクティブアビリティ
-        BoneStrength,       // 骨の強化（スケルトン）
-        PhaseShift,         // フェーズシフト（ゴースト）
-        SlimeRegeneration,  // スライム再生
-        
-        // 特殊アビリティ
-        PartyHeal,          // パーティ回復
-        Taunt,              // 挑発
-        Stealth             // ステルス
-    }
-
-    public enum GameState
-    {
-        MainMenu,
-        Playing,
-        Paused,
-        GameOver,
-        Renovation,
-        Tutorial
-    }
+    // 注意: MonsterAbilityType は ScriptableObject 側の定義（MonsterData.cs）を使用します
+    // 注意: GameState は Core 側の定義（GameManager.cs）を使用します
 }

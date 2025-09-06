@@ -484,6 +484,7 @@ namespace DungeonOwner.Core
 
         private void OnGUI()
         {
+#if UNITY_EDITOR
             if (!showDebugUI) return;
 
             if (debugStyle == null)
@@ -504,6 +505,7 @@ namespace DungeonOwner.Core
                               $"Optimization: {(isOptimizationActive ? "Active" : "Idle")}";
 
             GUI.Box(debugRect, debugText, debugStyle);
+#endif
         }
 
         /// <summary>

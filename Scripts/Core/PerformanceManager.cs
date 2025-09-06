@@ -513,6 +513,7 @@ namespace DungeonOwner.Core
 
         private void OnGUI()
         {
+#if UNITY_EDITOR
             if (!showPerformanceUI) return;
 
             var stats = GetStats();
@@ -558,6 +559,7 @@ namespace DungeonOwner.Core
             }
 
             GUILayout.EndArea();
+#endif
         }
 
         private void OnDestroy()
