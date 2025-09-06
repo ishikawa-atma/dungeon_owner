@@ -1,8 +1,9 @@
+using DungeonOwner.Interfaces;
 using UnityEngine;
 using System;
 using System.Collections.Generic;
 using DungeonOwner.Managers;
-using DungeonOwner.Interfaces;
+using DungeonOwner.Data;
 
 namespace DungeonOwner.Core
 {
@@ -61,15 +62,15 @@ namespace DungeonOwner.Core
 
         private void Start()
         {
-            if (GameManager.Instance != null)
+            if (DungeonOwner.Core.GameManager.Instance != null)
             {
-                GameManager.Instance.OnStateChanged += OnGameStateChanged;
+                DungeonOwner.Core.GameManager.Instance.OnStateChanged += OnGameStateChanged;
             }
         }
 
         private void Update()
         {
-            if (GameManager.Instance?.CurrentState == GameState.Playing)
+            if (DungeonOwner.Core.GameManager.Instance?.CurrentState == GameState.Playing)
             {
                 UpdateSpeedTransition();
                 UpdateDayTime();
@@ -217,9 +218,9 @@ namespace DungeonOwner.Core
             }
             
             // GameManagerにも通知
-            if (GameManager.Instance != null)
+            if (DungeonOwner.Core.GameManager.Instance != null)
             {
-                GameManager.Instance.SetGameSpeed(closestSpeed);
+                DungeonOwner.Core.GameManager.Instance.SetGameSpeed(closestSpeed);
             }
             
             OnSpeedChanged?.Invoke(closestSpeed);
@@ -297,9 +298,9 @@ namespace DungeonOwner.Core
 
         private void OnDestroy()
         {
-            if (GameManager.Instance != null)
+            if (DungeonOwner.Core.GameManager.Instance != null)
             {
-                GameManager.Instance.OnStateChanged -= OnGameStateChanged;
+                DungeonOwner.Core.GameManager.Instance.OnStateChanged -= OnGameStateChanged;
             }
         }
     }

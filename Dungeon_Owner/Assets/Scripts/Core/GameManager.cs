@@ -1,3 +1,4 @@
+using DungeonOwner.Interfaces;
 using UnityEngine;
 using System;
 using DungeonOwner.Data;
@@ -143,64 +144,29 @@ namespace DungeonOwner.Core
         }
 
         /// <summary>
-        /// パフォーマンス管理システムの初期化
+        /// パフォーマンス管理システムの初期化（一時的に無効化）
         /// </summary>
         private void InitializePerformanceSystem()
         {
-            if (PerformanceManager.Instance == null)
-            {
-                Debug.Log("Initializing Performance Management System...");
-                GameObject performanceManagerObj = new GameObject("PerformanceManager");
-                performanceManagerObj.AddComponent<PerformanceManager>();
-                
-                // パフォーマンスシステム初期化完了イベントを購読
-                PerformanceManager.Instance.OnPerformanceSystemsInitialized += OnPerformanceSystemsReady;
-            }
-            else
-            {
-                Debug.Log("Performance Management System already initialized");
-            }
+            // パフォーマンス管理システムは一時的に無効化
+            Debug.Log("Performance Management System temporarily disabled");
         }
 
         /// <summary>
-        /// パフォーマンスシステム準備完了時の処理
+        /// パフォーマンスシステム準備完了時の処理（一時的に無効化）
         /// </summary>
         private void OnPerformanceSystemsReady()
         {
-            Debug.Log("Performance systems are ready - game optimization enabled");
-            
-            // パフォーマンス最適化の設定
-            if (PerformanceManager.Instance != null)
-            {
-                // 自動最適化を有効化
-                PerformanceManager.Instance.SetAutoOptimizationEnabled(true);
-                
-                // モバイル向けの設定
-                #if UNITY_ANDROID || UNITY_IOS
-                PerformanceManager.Instance.SetCriticalPerformanceThreshold(45f); // モバイルは45FPS
-                #else
-                PerformanceManager.Instance.SetCriticalPerformanceThreshold(50f); // PCは50FPS
-                #endif
-            }
+            Debug.Log("Performance systems temporarily disabled");
         }
 
         /// <summary>
-        /// パーティ戦闘システムの初期化
+        /// パーティ戦闘システムの初期化（一時的に無効化）
         /// </summary>
         private void InitializePartyCombatSystem()
         {
-            // PartyCombatSystemが存在することを確認
-            if (PartyCombatSystem.Instance != null)
-            {
-                Debug.Log("Party combat system initialized");
-            }
-            else
-            {
-                // PartyCombatSystemが存在しない場合は作成
-                GameObject partyCombatObj = new GameObject("PartyCombatSystem");
-                partyCombatObj.AddComponent<PartyCombatSystem>();
-                Debug.Log("Party combat system created and initialized");
-            }
+            // パーティ戦闘システムは一時的に無効化
+            Debug.Log("Party combat system temporarily disabled");
         }
 
         private void OnDestroy()
