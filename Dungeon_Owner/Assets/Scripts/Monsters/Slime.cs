@@ -1,7 +1,5 @@
-using DungeonOwner.Interfaces;
 using UnityEngine;
 using DungeonOwner.Data;
-using DungeonOwner.Core.Abilities;
 
 namespace DungeonOwner.Monsters
 {

@@ -59,6 +59,7 @@
     <Compile Include="Assets/Scripts/UI/ResourceDisplayUI.cs" />
     <Compile Include="Assets/Scripts/Data/ScriptableObjects/PlayerCharacterData.cs" />
     <Compile Include="Assets/Scripts/Core/BaseMonster.cs" />
+    <Compile Include="Assets/Scripts/Invaders/BaseInvader.cs" />
     <Compile Include="Assets/Scripts/Core/Party.cs" />
     <Compile Include="Assets/Scripts/Core/FloorNavigator.cs" />
     <Compile Include="Assets/Scripts/Core/BasePlayerCharacter.cs" />
@@ -108,10 +109,12 @@
     <Compile Include="Assets/Scripts/Monsters/Goblin.cs" />
     <Compile Include="Assets/Scripts/Core/RenovationWall.cs" />
     <Compile Include="Assets/Scripts/Core/MonsterAbility.cs" />
+    <Compile Include="Assets/Scripts/Monsters/BaseMonster.cs" />
     <Compile Include="Assets/Scripts/UI/UIManager.cs" />
     <Compile Include="Assets/Scripts/Core/FloorSystem.cs" />
     <Compile Include="Assets/Scripts/Core/ObjectPool.cs" />
     <Compile Include="Assets/Scripts/UI/EconomyDisplayUI.cs" />
+    <Compile Include="Assets/Scripts/PlayerCharacters/BasePlayerCharacter.cs" />
     <Compile Include="Assets/GameManager.cs" />
     <Compile Include="Assets/Scripts/Managers/PartyManager.cs" />
     <Compile Include="Assets/Scripts/Data/ScriptableObjects/TrapItemData.cs" />
