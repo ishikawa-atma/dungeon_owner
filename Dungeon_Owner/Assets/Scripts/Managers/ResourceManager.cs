@@ -414,5 +414,21 @@ namespace DungeonOwner.Managers
         {
             TotalGoldEarned += amount;
         }
+        
+        // ResourceDisplayUI用のGetメソッド
+        public int GetGold()
+        {
+            return currentGold;
+        }
+        
+        public int GetMana()
+        {
+            return 100; // 基本実装
+        }
+        
+        public int GetFood()
+        {
+            return 50; // 基本実装
+        }
     }
 }

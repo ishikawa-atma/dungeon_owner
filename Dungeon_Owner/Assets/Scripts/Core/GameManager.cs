@@ -2,6 +2,7 @@ using DungeonOwner.Interfaces;
 using UnityEngine;
 using System;
 using DungeonOwner.Data;
+using DungeonOwner.Managers;
 
 namespace DungeonOwner.Core
 {

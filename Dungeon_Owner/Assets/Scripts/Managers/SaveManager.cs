@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.IO;
 using UnityEngine;
 using DungeonOwner.Data;
+using DungeonOwner.Core;
 
 namespace DungeonOwner
 {
@@ -369,11 +370,11 @@ namespace DungeonOwner
                     
                     MonsterSaveData monsterData = new MonsterSaveData
                     {
-                        type = monster.Type,
-                        level = monster.Level,
-                        currentHealth = monster.Health,
-                        currentMana = monster.Mana,
-                        position = monster.Position,
+                        type = (MonsterType)monster.Type(),
+                        level = monster.Level(),
+                        currentHealth = monster.Health(),
+                        currentMana = monster.Mana(),
+                        position = monster.PositionVector2(),
                         floorIndex = floorIndex,
                         isInShelter = false
                     };
@@ -398,10 +399,10 @@ namespace DungeonOwner
                 {
                     MonsterSaveData monsterData = new MonsterSaveData
                     {
-                        type = monster.Type,
-                        level = monster.Level,
-                        currentHealth = monster.Health,
-                        currentMana = monster.Mana,
+                        type = (MonsterType)monster.Type(),
+                        level = monster.Level(),
+                        currentHealth = monster.Health(),
+                        currentMana = monster.Mana(),
                         position = Vector2.zero, // 退避スポットでは位置は不要
                         floorIndex = -1, // 退避スポットを示す
                         isInShelter = true
@@ -427,8 +428,8 @@ namespace DungeonOwner
                 {
                     TrapItemSaveData itemData = new TrapItemSaveData
                     {
-                        type = item.itemData.type,
-                        quantity = item.count
+                        type = item.itemData().type(),
+                        quantity = item.count()
                     };
                     
                     inventoryList.Add(itemData);

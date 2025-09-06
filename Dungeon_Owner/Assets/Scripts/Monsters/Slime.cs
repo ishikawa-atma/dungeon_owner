@@ -38,7 +38,7 @@ namespace DungeonOwner.Monsters
 
         protected override bool CanUseAbility()
         {
-            return autoHealAbility?.CanUse ?? false;
+            return autoHealAbility != null && autoHealAbility.CanUse();
         }
 
         protected override float GetAbilityCooldown()
