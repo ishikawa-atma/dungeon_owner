@@ -165,7 +165,15 @@ namespace DungeonOwner.UI
             }
 
             // 利用可能なボスデータを取得
-            List<BossData> availableBosses = BossManager.Instance.GetAvailableBossesForFloor(currentFloorIndex);
+            var availableBossesObj = BossManager.Instance.GetAvailableBossesForFloor(currentFloorIndex);
+            List<BossData> availableBosses = new List<BossData>();
+            foreach (var boss in availableBossesObj)
+            {
+                if (boss is BossData bossData)
+                {
+                    availableBosses.Add(bossData);
+                }
+            }
 
             foreach (BossData bossData in availableBosses)
             {
@@ -470,7 +478,8 @@ namespace DungeonOwner.UI
             }
 
             // ボスを配置
-            IBoss placedBoss = BossManager.Instance.PlaceBoss(currentFloorIndex, selectedBossData.type, position, 1);
+            var placedBossObj = BossManager.Instance.PlaceBoss(selectedBossData, selectedBossData.type, position, 1);
+            IBoss placedBoss = placedBossObj as IBoss;
 
             if (placedBoss != null)
             {

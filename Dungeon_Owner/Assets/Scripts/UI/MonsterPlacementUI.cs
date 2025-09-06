@@ -140,7 +140,10 @@ namespace DungeonOwner.UI
                 {
                     foreach (var monsterData in unlockedMonsters)
                     {
-                        availableMonsterTypes.Add(monsterData.type);
+                        if (monsterData != null)
+                        {
+                            availableMonsterTypes.Add((MonsterType)monsterData.type());
+                        }
                     }
                 }
             }
@@ -489,7 +492,7 @@ namespace DungeonOwner.UI
         }
 
         // イベントハンドラー
-        private void OnFloorMonsterCountChanged(int floorIndex, int newCount)
+        private void OnFloorMonsterCountChanged(int count)
         {
             if (FloorSystem.Instance != null && floorIndex == FloorSystem.Instance.CurrentViewFloor)
             {

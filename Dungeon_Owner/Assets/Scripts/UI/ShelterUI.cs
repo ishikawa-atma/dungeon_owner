@@ -152,7 +152,10 @@ namespace DungeonOwner.UI
             // 退避スポット内のモンスターでアイテムを作成
             foreach (var monster in shelterManager.ShelterMonsters)
             {
-                CreateMonsterItem(monster);
+                if (monster is IMonster iMonster)
+                {
+                    CreateMonsterItem(iMonster);
+                }
             }
         }
         
@@ -394,19 +397,19 @@ namespace DungeonOwner.UI
         }
         
         // イベントハンドラー
-        private void OnMonsterSheltered(IMonster monster)
+        private void OnMonsterSheltered(object monster)
         {
             RefreshMonsterList();
             UpdateCapacityDisplay();
         }
         
-        private void OnMonsterDeployed(IMonster monster)
+        private void OnMonsterDeployed(object monster)
         {
             RefreshMonsterList();
             UpdateCapacityDisplay();
         }
         
-        private void OnMonsterSold(IMonster monster)
+        private void OnMonsterSold(object monster)
         {
             RefreshMonsterList();
             UpdateCapacityDisplay();

@@ -428,7 +428,7 @@ namespace DungeonOwner
                 {
                     TrapItemSaveData itemData = new TrapItemSaveData
                     {
-                        type = item.itemData().type(),
+                        type = (DungeonOwner.Data.TrapItemType)item.itemData().type(),
                         quantity = item.count()
                     };
                     

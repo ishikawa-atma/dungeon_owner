@@ -113,7 +113,15 @@ namespace DungeonOwner.UI
             ClearBossStatusItems();
 
             // アクティブなボスの状態を表示
-            List<IBoss> activeBosses = BossManager.Instance.GetActiveBosses();
+            var activeBossesObj = BossManager.Instance.GetActiveBosses();
+            List<IBoss> activeBosses = new List<IBoss>();
+            foreach (var boss in activeBossesObj)
+            {
+                if (boss is IBoss iBoss)
+                {
+                    activeBosses.Add(iBoss);
+                }
+            }
 
             foreach (IBoss boss in activeBosses)
             {
@@ -136,7 +144,8 @@ namespace DungeonOwner.UI
             // 全階層をチェック
             for (int i = 1; i <= (FloorSystem.Instance?.CurrentFloorCount ?? 0); i++)
             {
-                IBoss floorBoss = BossManager.Instance.GetBossOnFloor(i);
+                var floorBossObj = BossManager.Instance.GetBossOnFloor(i);
+                IBoss floorBoss = floorBossObj as IBoss;
                 if (floorBoss == boss)
                 {
                     return i;
@@ -178,7 +187,8 @@ namespace DungeonOwner.UI
             Image iconImage = itemObj.transform.Find("Icon")?.GetComponent<Image>();
             if (iconImage != null && BossManager.Instance != null)
             {
-                BossData bossData = BossManager.Instance.GetBossData(boss.BossType);
+                var bossDataObj = BossManager.Instance.GetBossData(boss);
+                BossData bossData = bossDataObj as BossData;
                 if (bossData != null && bossData.icon != null)
                 {
                     iconImage.sprite = bossData.icon;
@@ -267,7 +277,8 @@ namespace DungeonOwner.UI
         {
             if (currentDisplayedBoss == null) return;
 
-            BossData bossData = BossManager.Instance?.GetBossData(currentDisplayedBoss.BossType);
+            var bossDataObj = BossManager.Instance?.GetBossData(currentDisplayedBoss);
+            BossData bossData = bossDataObj as BossData;
 
             // アイコン
             if (bossIcon != null && bossData != null && bossData.icon != null)
@@ -372,7 +383,7 @@ namespace DungeonOwner.UI
         /// <summary>
         /// ボス配置時の処理
         /// </summary>
-        private void OnBossPlaced(IBoss boss, int floorIndex)
+        private void OnBossPlaced(object boss)
         {
             if (statusPanel != null && statusPanel.activeSelf)
             {
@@ -383,7 +394,7 @@ namespace DungeonOwner.UI
         /// <summary>
         /// ボス撃破時の処理
         /// </summary>
-        private void OnBossDefeated(IBoss boss, int floorIndex)
+        private void OnBossDefeated(object boss)
         {
             // 状態アイテムを更新
             if (bossStatusItems.ContainsKey(floorIndex))
@@ -401,7 +412,7 @@ namespace DungeonOwner.UI
         /// <summary>
         /// ボスリポップ時の処理
         /// </summary>
-        private void OnBossRespawned(IBoss boss, int floorIndex)
+        private void OnBossRespawned(object boss)
         {
             // 状態アイテムを更新
             if (bossStatusItems.ContainsKey(floorIndex))
@@ -452,7 +463,8 @@ namespace DungeonOwner.UI
 
                 if (itemObj != null && BossManager.Instance != null)
                 {
-                    IBoss boss = BossManager.Instance.GetBossOnFloor(floorIndex);
+                    var bossObj = BossManager.Instance.GetBossOnFloor(floorIndex);
+                    IBoss boss = bossObj as IBoss;
                     if (boss != null && boss.IsRespawning)
                     {
                         GameObject respawnIndicator = itemObj.transform.Find("RespawnIndicator")?.gameObject;
