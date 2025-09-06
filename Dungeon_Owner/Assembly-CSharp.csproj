@@ -47,25 +47,18 @@
     <Analyzer Include="/Applications/Unity/Hub/Editor/6000.2.2f1/Unity.app/Contents/Tools/Unity.SourceGenerators/Unity.UIToolkit.SourceGenerator.dll" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Assets/Scripts/NonEssential_Disabled/TutorialManager.cs" />
     <Compile Include="Assets/Scripts/Invaders/Rogue.cs" />
     <Compile Include="Assets/Scripts/Data/Enums/GameEnums.cs" />
     <Compile Include="Assets/Scripts/UI/BossSelectionUI.cs" />
     <Compile Include="Assets/Scripts/Managers/DataManager.cs" />
     <Compile Include="Assets/Scripts/Data/ScriptableObjects/InvaderData.cs" />
-    <Compile Include="Assets/Scripts/Managers/ShelterManager.cs" />
-    <Compile Include="Assets/Scripts/UI/TrapItemUI.cs" />
     <Compile Include="Assets/Scripts/Core/RecoveryEffect.cs" />
     <Compile Include="Assets/Scripts/Monsters/LesserSkeleton.cs" />
-    <Compile Include="Assets/Scripts/Managers/InventoryManager.cs" />
     <Compile Include="Assets/Scripts/Managers/SaveManager.cs" />
-    <Compile Include="Assets/Scripts/Invaders/InvaderPathfinding.cs" />
-    <Compile Include="Assets/Scripts/UI/ResourceDisplayUI.cs" />
     <Compile Include="Assets/Scripts/Data/ScriptableObjects/PlayerCharacterData.cs" />
     <Compile Include="Assets/Scripts/Core/Party.cs" />
     <Compile Include="Assets/Scripts/Core/FloorNavigator.cs" />
     <Compile Include="Assets/Scripts/Core/FloorRenovationSystem.cs" />
-    <Compile Include="Assets/Scripts/NonEssential_Disabled/BasePlayerCharacter.cs" />
     <Compile Include="Assets/Scripts/UI/BossStatusUI.cs" />
     <Compile Include="Assets/Scripts/UI/SpeedControlUI.cs" />
     <Compile Include="Assets/Scripts/Managers/LevelDisplayManager.cs" />
@@ -80,10 +73,8 @@
     <Compile Include="Assets/Scripts/Core/DungeonInitializer.cs" />
     <Compile Include="Assets/Scripts/Interfaces/IMonsterAbility.cs" />
     <Compile Include="Assets/Scripts/Invaders/InvaderAnimationController.cs" />
-    <Compile Include="Assets/Scripts/Managers/BossManager.cs" />
     <Compile Include="Assets/Scripts/Data/ScriptableObjects/GameConfig.cs" />
     <Compile Include="Assets/Scripts/Data/SaveData.cs" />
-    <Compile Include="Assets/Scripts/Managers/MonsterPlacementManager.cs" />
     <Compile Include="Assets/Scripts/Core/CameraShake.cs" />
     <Compile Include="Assets/Scripts/Core/RecoverySystem.cs" />
     <Compile Include="Assets/Scripts/UI/FloorExpansionUI.cs" />
@@ -98,7 +89,6 @@
     <Compile Include="Assets/Scripts/UI/ShelterUI.cs" />
     <Compile Include="Assets/Scripts/Core/TimeManager.cs" />
     <Compile Include="Assets/Scripts/UI/FloorRenovationUI.cs" />
-    <Compile Include="Assets/Scripts/Managers/InvaderSpawner.cs" />
     <Compile Include="Assets/Scripts/Core/MemoryOptimizer.cs" />
     <Compile Include="Assets/Scripts/Interfaces/IParty.cs" />
     <Compile Include="Assets/Scripts/Monsters/LesserGhost.cs" />
@@ -110,9 +100,7 @@
     <Compile Include="Assets/Scripts/Core/InitialMonsterPlacer.cs" />
     <Compile Include="Assets/Scripts/Invaders/Warrior.cs" />
     <Compile Include="Assets/Scripts/UI/MonsterPlacementUI.cs" />
-    <Compile Include="Assets/Scripts/NonEssential_Disabled/BaseInvader.cs" />
     <Compile Include="Assets/Scripts/Monsters/Goblin.cs" />
-    <Compile Include="Assets/Scripts/NonEssential_Disabled/BaseMonster.cs" />
     <Compile Include="Assets/Scripts/Core/RenovationWall.cs" />
     <Compile Include="Assets/Scripts/Core/MonsterAbility.cs" />
     <Compile Include="Assets/Scripts/UI/UIManager.cs" />
@@ -123,7 +111,6 @@
     <Compile Include="Assets/Scripts/Managers/PartyManager.cs" />
     <Compile Include="Assets/Scripts/Data/ScriptableObjects/TrapItemData.cs" />
     <Compile Include="Assets/Scripts/Core/Abilities/AutoReviveAbility.cs" />
-    <Compile Include="Assets/Scripts/UI/PlacementGhostSystem.cs" />
     <Compile Include="Assets/Scripts/Interfaces/ICharacterBase.cs" />
     <Compile Include="Assets/Scripts/UI/TutorialUI.cs" />
     <Compile Include="Assets/Scripts/Data/ScriptableObjects/BossData.cs" />

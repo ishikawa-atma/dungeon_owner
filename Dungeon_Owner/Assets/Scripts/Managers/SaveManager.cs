@@ -342,7 +342,7 @@ namespace DungeonOwner
                     // ボス情報があれば追加
                     if (floor.bossType != DungeonOwner.Data.BossType.None)
                     {
-                        floorData.bossType = floor.bossType;
+                        floorData.bossType = floor.bossType ?? DungeonOwner.Data.BossType.None;
                         floorData.bossLevel = floor.bossLevel;
                         floorData.hasBoss = true;
                     }

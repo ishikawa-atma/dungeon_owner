@@ -178,9 +178,9 @@ namespace DungeonOwner.Managers
                     int basePrice = monsterData.GetSellPrice();
                     
                     // レベルによる補正
-                    float levelMultiplier = 1f + (monster.Level - 1) * 0.1f;
+                    float monsterLevelMultiplier = 1f + (monster.Level - 1) * 0.1f;
                     
-                    return Mathf.RoundToInt(basePrice * levelMultiplier);
+                    return Mathf.RoundToInt(basePrice * monsterLevelMultiplier);
                 }
             }
 
