@@ -270,18 +270,26 @@ namespace DungeonOwner.UI
 
             DestroyPlacementGhost();
 
-            // ゴーストオブジェクトを作成
-            if (placementGhostPrefab != null)
+            // PlacementGhostSystemを使用してゴーストを作成
+            if (PlacementGhostSystem.Instance != null)
             {
-                placementGhost = Instantiate(placementGhostPrefab);
+                PlacementGhostSystem.Instance.CreateGhost(selectedMonsterData);
             }
             else
             {
-                placementGhost = Instantiate(selectedMonsterData.prefab);
-            }
+                // フォールバック：従来の方法
+                if (placementGhostPrefab != null)
+                {
+                    placementGhost = Instantiate(placementGhostPrefab);
+                }
+                else
+                {
+                    placementGhost = Instantiate(selectedMonsterData.prefab);
+                }
 
-            // ゴーストの設定
-            SetupPlacementGhost();
+                // ゴーストの設定
+                SetupPlacementGhost();
+            }
         }
 
         private void SetupPlacementGhost()
@@ -323,6 +331,13 @@ namespace DungeonOwner.UI
 
         private void DestroyPlacementGhost()
         {
+            // PlacementGhostSystemを使用してゴーストを破棄
+            if (PlacementGhostSystem.Instance != null)
+            {
+                PlacementGhostSystem.Instance.DestroyCurrentGhost();
+            }
+            
+            // フォールバック：従来の方法
             if (placementGhost != null)
             {
                 Destroy(placementGhost);
@@ -393,6 +408,22 @@ namespace DungeonOwner.UI
                 return;
             }
 
+            // PlacementGhostSystemを使用して配置を試行
+            if (PlacementGhostSystem.Instance != null)
+            {
+                if (PlacementGhostSystem.Instance.TryPlaceMonster())
+                {
+                    // 配置要求イベントを発火
+                    OnMonsterPlaceRequested?.Invoke(selectedMonsterType, position);
+                }
+                else
+                {
+                    Debug.Log("Cannot place monster at this position");
+                }
+                return;
+            }
+
+            // フォールバック：従来の方法
             int currentFloor = FloorSystem.Instance.CurrentViewFloor;
             
             if (MonsterPlacementManager.Instance.CanPlaceMonster(currentFloor, position, selectedMonsterType))
