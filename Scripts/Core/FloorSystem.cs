@@ -264,11 +264,11 @@ namespace DungeonOwner.Core
             }
 
             // 全階層のモンスターと侵入者を非表示
-            for (int i = 0; i < floors.Count; i++)
+            for (int i = 0; i < Floors.Count; i++)
             {
-                if (floors[i] != null)
+                if (Floors[i] != null)
                 {
-                    foreach (var monster in floors[i].placedMonsters)
+                    foreach (var monster in Floors[i].placedMonsters)
                     {
                         if (monster != null)
                         {
@@ -276,7 +276,7 @@ namespace DungeonOwner.Core
                         }
                     }
 
-                    foreach (var invader in floors[i].activeInvaders)
+                    foreach (var invader in Floors[i].activeInvaders)
                     {
                         if (invader != null)
                         {

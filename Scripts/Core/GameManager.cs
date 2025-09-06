@@ -3,7 +3,7 @@ using System;
 using DungeonOwner.Data;
 
 namespace DungeonOwner.Core
-
+{
     public class GameManager : MonoBehaviour
     {
         public static GameManager Instance { get; private set; }

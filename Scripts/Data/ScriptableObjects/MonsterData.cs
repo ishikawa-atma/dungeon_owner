@@ -61,6 +61,4 @@ namespace DungeonOwner.Data
             return Mathf.RoundToInt(goldCost * 0.7f); // 購入価格の70%で売却
         }
     }
-
-
 }
