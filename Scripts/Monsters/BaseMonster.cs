@@ -6,7 +6,7 @@ using DungeonOwner.Core;
 
 namespace DungeonOwner.Monsters
 {
-    public abstract class BaseMonster : MonoBehaviour, IMonster, ICharacter, ICharacterBase
+    public abstract class BaseMonster : MonoBehaviour, IMonster, ICharacter, ICharacterBase, ITimeScalable
     {
         [Header("Monster Configuration")]
         [SerializeField] protected MonsterData monsterData;
@@ -72,14 +72,21 @@ namespace DungeonOwner.Monsters
             
             // 回復システムに登録
             RegisterRecoverySystem();
+            
+            // 時間制御システムに登録
+            RegisterTimeScalable();
         }
 
         protected virtual void Update()
         {
             if (isDead) return;
             
-            UpdateMonsterBehavior();
-            ProcessAbilities();
+            // 通常のUpdate処理は時間制御システムを使用しない場合のフォールバック
+            if (TimeManager.Instance == null || !TimeManager.Instance.IsSpeedControlEnabled)
+            {
+                UpdateMonsterBehavior();
+                ProcessAbilities();
+            }
         }
 
         // 初期化
@@ -296,6 +303,9 @@ namespace DungeonOwner.Monsters
             // 回復システムから削除
             UnregisterRecoverySystem();
             
+            // 時間制御システムから削除
+            UnregisterTimeScalable();
+            
             OnDeath();
         }
 
@@ -437,6 +447,95 @@ namespace DungeonOwner.Monsters
             if (Managers.RecoveryManager.Instance != null)
             {
                 Managers.RecoveryManager.Instance.UnregisterMonster(this);
+            }
+        }
+
+        // ITimeScalable 実装
+        public virtual void UpdateWithTimeScale(float scaledDeltaTime, float timeScale)
+        {
+            if (isDead) return;
+            
+            // 時間スケールを考慮した更新処理
+            UpdateMonsterBehaviorWithTimeScale(scaledDeltaTime, timeScale);
+            ProcessAbilitiesWithTimeScale(scaledDeltaTime, timeScale);
+        }
+
+        public virtual void OnTimeScaleChanged(float newTimeScale)
+        {
+            // 時間スケール変更時の処理
+            // アニメーションスピードの調整など
+            Animator animator = GetComponent<Animator>();
+            if (animator != null)
+            {
+                animator.speed = newTimeScale;
+            }
+        }
+
+        // 時間スケール対応の更新メソッド
+        protected virtual void UpdateMonsterBehaviorWithTimeScale(float scaledDeltaTime, float timeScale)
+        {
+            // デフォルト実装：通常の更新処理を呼び出し
+            UpdateMonsterBehavior();
+        }
+
+        protected virtual void ProcessAbilitiesWithTimeScale(float scaledDeltaTime, float timeScale)
+        {
+            // 全アビリティの時間スケール対応更新処理
+            foreach (var ability in abilities)
+            {
+                if (ability is ITimeScalable timeScalableAbility)
+                {
+                    timeScalableAbility.UpdateWithTimeScale(scaledDeltaTime, timeScale);
+                }
+                else
+                {
+                    ability.Update();
+                }
+            }
+            
+            // 基本的な回復処理（時間スケール対応）
+            if (currentState == MonsterState.Idle || currentState == MonsterState.InShelter)
+            {
+                ProcessNaturalRecoveryWithTimeScale(scaledDeltaTime, timeScale);
+            }
+        }
+
+        protected virtual void ProcessNaturalRecoveryWithTimeScale(float scaledDeltaTime, float timeScale)
+        {
+            // 新しい回復システムを使用する場合はスキップ
+            if (Managers.RecoveryManager.Instance != null)
+            {
+                return;
+            }
+            
+            // フォールバック処理（旧システム、時間スケール対応）
+            float recoveryRate = currentState == MonsterState.InShelter ? 5f : 1f;
+            
+            if (currentHealth < MaxHealth)
+            {
+                Heal(recoveryRate * scaledDeltaTime);
+            }
+            
+            if (currentMana < MaxMana)
+            {
+                currentMana = Mathf.Min(MaxMana, currentMana + recoveryRate * scaledDeltaTime);
+            }
+        }
+
+        // 時間制御システム連携
+        protected virtual void RegisterTimeScalable()
+        {
+            if (TimeManager.Instance != null)
+            {
+                TimeManager.Instance.RegisterTimeScalable(this);
+            }
+        }
+
+        protected virtual void UnregisterTimeScalable()
+        {
+            if (TimeManager.Instance != null)
+            {
+                TimeManager.Instance.UnregisterTimeScalable(this);
             }
         }
 

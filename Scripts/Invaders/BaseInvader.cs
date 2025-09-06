@@ -1,10 +1,11 @@
 using UnityEngine;
 using DungeonOwner.Data;
 using DungeonOwner.Interfaces;
+using DungeonOwner.Core;
 
 namespace DungeonOwner.Invaders
 {
-    public class BaseInvader : MonoBehaviour, IInvader, ICharacterBase
+    public class BaseInvader : MonoBehaviour, IInvader, ICharacterBase, ITimeScalable
     {
         [Header("Invader Configuration")]
         [SerializeField] protected InvaderData invaderData;
@@ -67,11 +68,18 @@ namespace DungeonOwner.Invaders
             
             // レベル表示システムに登録
             RegisterLevelDisplay();
+            
+            // 時間制御システムに登録
+            RegisterTimeScalable();
         }
 
         protected virtual void Update()
         {
-            UpdateInvader();
+            // 通常のUpdate処理は時間制御システムを使用しない場合のフォールバック
+            if (TimeManager.Instance == null || !TimeManager.Instance.IsSpeedControlEnabled)
+            {
+                UpdateInvader();
+            }
         }
 
         protected virtual void InitializeInvader()
@@ -380,6 +388,9 @@ namespace DungeonOwner.Invaders
             // レベル表示システムから削除
             UnregisterLevelDisplay();
             
+            // 時間制御システムから削除
+            UnregisterTimeScalable();
+            
             // 報酬処理
             GiveRewards();
             
@@ -455,6 +466,133 @@ namespace DungeonOwner.Invaders
             if (Managers.LevelDisplayManager.Instance != null)
             {
                 Managers.LevelDisplayManager.Instance.RemoveLevelDisplay(gameObject);
+            }
+        }
+
+        // ITimeScalable 実装
+        public virtual void UpdateWithTimeScale(float scaledDeltaTime, float timeScale)
+        {
+            // 時間スケールを考慮した更新処理
+            UpdateInvaderWithTimeScale(scaledDeltaTime, timeScale);
+        }
+
+        public virtual void OnTimeScaleChanged(float newTimeScale)
+        {
+            // 時間スケール変更時の処理
+            // アニメーションスピードの調整
+            if (animator != null)
+            {
+                animator.speed = newTimeScale;
+            }
+            
+            // アニメーションコントローラーにも通知
+            if (animationController != null && animationController is ITimeScalable timeScalableController)
+            {
+                timeScalableController.OnTimeScaleChanged(newTimeScale);
+            }
+        }
+
+        // 時間スケール対応の更新メソッド
+        protected virtual void UpdateInvaderWithTimeScale(float scaledDeltaTime, float timeScale)
+        {
+            switch (currentState)
+            {
+                case InvaderState.Spawning:
+                    UpdateSpawningWithTimeScale(scaledDeltaTime, timeScale);
+                    break;
+                case InvaderState.Moving:
+                    UpdateMovementWithTimeScale(scaledDeltaTime, timeScale);
+                    break;
+                case InvaderState.Fighting:
+                    UpdateFightingWithTimeScale(scaledDeltaTime, timeScale);
+                    break;
+                case InvaderState.Retreating:
+                    UpdateRetreatingWithTimeScale(scaledDeltaTime, timeScale);
+                    break;
+                case InvaderState.Dead:
+                    // 死亡状態では何もしない
+                    break;
+            }
+        }
+
+        protected virtual void UpdateSpawningWithTimeScale(float scaledDeltaTime, float timeScale)
+        {
+            // 出現アニメーション完了後、移動状態に移行（時間スケール対応）
+            if (Time.time > lastAttackTime + (1f / timeScale)) // 時間スケールを考慮
+            {
+                SetState(InvaderState.Moving);
+                FindNextTarget();
+            }
+        }
+
+        protected virtual void UpdateMovementWithTimeScale(float scaledDeltaTime, float timeScale)
+        {
+            if (isMoving && targetPosition != Vector2.zero)
+            {
+                // 目標位置に向かって移動（時間スケール対応）
+                Vector2 currentPos = transform.position;
+                Vector2 direction = (targetPosition - currentPos).normalized;
+                float distance = Vector2.Distance(currentPos, targetPosition);
+
+                if (distance > 0.1f)
+                {
+                    Vector2 newPosition = currentPos + direction * moveSpeed * scaledDeltaTime;
+                    transform.position = new Vector3(newPosition.x, newPosition.y, transform.position.z);
+                }
+                else
+                {
+                    // 目標位置に到達
+                    transform.position = new Vector3(targetPosition.x, targetPosition.y, transform.position.z);
+                    isMoving = false;
+                    OnReachedTarget();
+                }
+            }
+            else
+            {
+                // 新しい目標を探す
+                FindNextTarget();
+            }
+
+            // 近くの敵をチェック
+            CheckForEnemies();
+        }
+
+        protected virtual void UpdateFightingWithTimeScale(float scaledDeltaTime, float timeScale)
+        {
+            // CombatDetectorとCombatManagerが戦闘を処理するため、
+            // ここでは戦闘アニメーションと状態管理のみ行う
+            
+            if (Core.CombatDetector.Instance != null)
+            {
+                var enemies = Core.CombatDetector.Instance.GetCombatEnemies(gameObject);
+                if (enemies.Count == 0)
+                {
+                    // 敵がいなくなったら移動状態に戻る
+                    SetState(InvaderState.Moving);
+                }
+            }
+        }
+
+        protected virtual void UpdateRetreatingWithTimeScale(float scaledDeltaTime, float timeScale)
+        {
+            // 撤退処理（現在は未実装）
+            // 将来的にはHPが低い時の撤退ロジックを実装
+        }
+
+        // 時間制御システム連携
+        protected virtual void RegisterTimeScalable()
+        {
+            if (TimeManager.Instance != null)
+            {
+                TimeManager.Instance.RegisterTimeScalable(this);
+            }
+        }
+
+        protected virtual void UnregisterTimeScalable()
+        {
+            if (TimeManager.Instance != null)
+            {
+                TimeManager.Instance.UnregisterTimeScalable(this);
             }
         }
 

@@ -12,7 +12,7 @@ namespace DungeonOwner.Core
     /// リアルタイム戦闘システムの管理クラス
     /// モンスターと侵入者の衝突判定、ダメージ計算、戦闘エフェクトを処理
     /// </summary>
-    public class CombatManager : MonoBehaviour
+    public class CombatManager : MonoBehaviour, ITimeScalable
     {
         [Header("戦闘設定")]
         [SerializeField] private float combatRange = 1.5f;
@@ -46,9 +46,34 @@ namespace DungeonOwner.Core
             }
         }
 
+        private void Start()
+        {
+            // 時間制御システムに登録
+            if (TimeManager.Instance != null)
+            {
+                TimeManager.Instance.RegisterTimeScalable(this);
+            }
+        }
+
         private void Update()
         {
-            ProcessKnockbacks();
+            // 通常のUpdate処理は時間制御システムを使用しない場合のフォールバック
+            if (TimeManager.Instance == null || !TimeManager.Instance.IsSpeedControlEnabled)
+            {
+                ProcessKnockbacks();
+            }
+        }
+
+        // ITimeScalable 実装
+        public void UpdateWithTimeScale(float scaledDeltaTime, float timeScale)
+        {
+            ProcessKnockbacksWithTimeScale(scaledDeltaTime, timeScale);
+        }
+
+        public void OnTimeScaleChanged(float newTimeScale)
+        {
+            // 戦闘間隔を時間スケールに応じて調整
+            // 実際の戦闘間隔は変更せず、判定時に時間スケールを考慮
         }
 
         /// <summary>
@@ -303,6 +328,14 @@ namespace DungeonOwner.Core
         /// </summary>
         private void ProcessKnockbacks()
         {
+            ProcessKnockbacksWithTimeScale(Time.deltaTime, 1.0f);
+        }
+
+        /// <summary>
+        /// 吹き飛ばし処理更新（時間スケール対応）
+        /// </summary>
+        private void ProcessKnockbacksWithTimeScale(float scaledDeltaTime, float timeScale)
+        {
             var toRemove = new List<GameObject>();
 
             foreach (var kvp in knockbackTargets)
@@ -316,9 +349,9 @@ namespace DungeonOwner.Core
                     continue;
                 }
 
-                // 吹き飛ばし移動
+                // 吹き飛ばし移動（時間スケール対応）
                 float progress = 1f - (knockbackEndTime[obj] - Time.time) / knockbackDuration;
-                Vector3 currentPos = Vector3.Lerp(obj.transform.position, targetPos, progress * 5f * Time.deltaTime);
+                Vector3 currentPos = Vector3.Lerp(obj.transform.position, targetPos, progress * 5f * scaledDeltaTime);
                 obj.transform.position = currentPos;
             }
 
@@ -383,7 +416,7 @@ namespace DungeonOwner.Core
         }
 
         /// <summary>
-        /// 戦闘可能かチェック
+        /// 戦闘可能かチェック（時間スケール対応）
         /// </summary>
         private bool CanEngageInCombat(GameObject obj)
         {
@@ -392,7 +425,15 @@ namespace DungeonOwner.Core
                 lastCombatTime[obj] = 0f;
             }
 
-            return Time.time - lastCombatTime[obj] >= combatInterval;
+            float effectiveInterval = combatInterval;
+            
+            // 時間制御システムが有効な場合は、間隔を時間スケールで調整
+            if (TimeManager.Instance != null && TimeManager.Instance.IsSpeedControlEnabled)
+            {
+                effectiveInterval = combatInterval / TimeManager.Instance.CurrentSpeedMultiplier;
+            }
+
+            return Time.time - lastCombatTime[obj] >= effectiveInterval;
         }
 
         /// <summary>
@@ -540,6 +581,15 @@ namespace DungeonOwner.Core
             PlayCombatEffects(individual as MonoBehaviour, null, attackPower);
 
             Debug.Log($"単体 vs パーティ({party.Members.Count}名)戦闘: ダメージ{attackPower}");
+        }
+
+        private void OnDestroy()
+        {
+            // 時間制御システムから登録解除
+            if (TimeManager.Instance != null)
+            {
+                TimeManager.Instance.UnregisterTimeScalable(this);
+            }
         }
 
         private void OnDrawGizmosSelected()
