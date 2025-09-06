@@ -501,6 +501,14 @@ namespace DungeonOwner.Core
             audioUnloadDelay = delay;
         }
 
+        /// <summary>
+        /// 統合テスト用の現在のメモリ使用量取得
+        /// </summary>
+        public long GetCurrentMemoryUsage()
+        {
+            return System.GC.GetTotalMemory(false);
+        }
+
         private void OnDestroy()
         {
             Application.lowMemory -= OnLowMemoryWarning;

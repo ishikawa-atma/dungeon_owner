@@ -615,6 +615,19 @@ namespace DungeonOwner.Core
             }
         }
 
+        /// <summary>
+        /// バランス調整設定を適用
+        /// </summary>
+        public void ApplyBalanceSettings(GameBalanceManager.CombatBalance balance)
+        {
+            combatInterval = balance.combatCheckInterval;
+            knockbackForce = balance.knockbackForce;
+            baseDamageChance = balance.criticalHitChance;
+            levelDifferenceModifier = balance.levelDifferenceMultiplier;
+            
+            Debug.Log("戦闘バランス設定を適用しました");
+        }
+
         private void OnDrawGizmosSelected()
         {
             // 戦闘範囲の可視化

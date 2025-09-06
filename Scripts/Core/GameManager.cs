@@ -357,5 +357,35 @@ namespace DungeonOwner.Core
         {
             return CurrentFloor;
         }
+
+        // 統合テスト用メソッド
+        /// <summary>
+        /// ゲームが初期化済みかどうかを確認
+        /// </summary>
+        public bool IsInitialized
+        {
+            get { return Instance != null; }
+        }
+
+        /// <summary>
+        /// ゲームが開始可能な状態かどうかを確認
+        /// </summary>
+        public bool IsGameReady()
+        {
+            return FloorSystem.Instance != null &&
+                   Managers.ResourceManager.Instance != null &&
+                   FindObjectOfType<DungeonInitializer>() != null;
+        }
+
+        /// <summary>
+        /// 統合テスト用のゲーム状態リセット
+        /// </summary>
+        public void ResetForTesting()
+        {
+            CurrentState = GameState.MainMenu;
+            CurrentFloor = 1;
+            GameSpeed = 1.0f;
+            Time.timeScale = 1.0f;
+        }
     }
 }

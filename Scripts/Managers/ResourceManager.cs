@@ -74,6 +74,7 @@ namespace DungeonOwner.Managers
             if (amount <= 0) return;
 
             currentGold += amount;
+            UpdateTotalGoldEarned(amount);
             OnGoldChanged?.Invoke(currentGold);
             OnGoldEarned?.Invoke(amount);
 
@@ -383,6 +384,32 @@ namespace DungeonOwner.Managers
         public void ForceDailyReward()
         {
             ProcessDailyReward();
+        }
+
+        /// <summary>
+        /// バランス調整設定を適用
+        /// </summary>
+        public void ApplyBalanceSettings(GameBalanceManager.EconomyBalance balance)
+        {
+            baseInvaderReward = balance.baseGoldReward;
+            goldMultiplierPerLevel = balance.levelBonusMultiplier - 1f; // 1.2f -> 0.2f
+            dailyGoldReward = balance.dailyGoldBonus;
+            sellPriceRatio = balance.sellPriceRatio;
+            
+            Debug.Log("経済バランス設定を適用しました");
+        }
+
+        /// <summary>
+        /// 統合テスト用の総獲得金貨量を取得
+        /// </summary>
+        public int TotalGoldEarned { get; private set; } = 0;
+
+        /// <summary>
+        /// 金貨獲得時に総獲得量を更新
+        /// </summary>
+        private void UpdateTotalGoldEarned(int amount)
+        {
+            TotalGoldEarned += amount;
         }
     }
 }

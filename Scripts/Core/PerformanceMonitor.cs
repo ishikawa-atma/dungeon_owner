@@ -506,6 +506,22 @@ namespace DungeonOwner.Core
             GUI.Box(debugRect, debugText, debugStyle);
         }
 
+        /// <summary>
+        /// 統合テスト用の平均FPS取得
+        /// </summary>
+        public float GetAverageFPS()
+        {
+            return AverageFPS;
+        }
+
+        /// <summary>
+        /// 統合テスト用の現在のメモリ使用量取得
+        /// </summary>
+        public long GetCurrentMemoryUsage()
+        {
+            return CurrentMemoryUsage;
+        }
+
         private void OnDestroy()
         {
             StopAllCoroutines();
