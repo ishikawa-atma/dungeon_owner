@@ -1,5 +1,6 @@
 using UnityEngine;
 using DungeonOwner.Data;
+using DungeonOwner.Core;
 
 namespace DungeonOwner.Invaders
 {
