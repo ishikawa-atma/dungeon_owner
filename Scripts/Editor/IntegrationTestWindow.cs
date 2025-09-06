@@ -4,6 +4,7 @@ using System.IO;
 
 /// <summary>
 /// 統合テストとバランス調整の実行・管理を行うエディタウィンドウ
+/// 最終ポリッシュ機能を統合
 /// </summary>
 public class IntegrationTestWindow : EditorWindow
 {
@@ -11,13 +12,21 @@ public class IntegrationTestWindow : EditorWindow
     private IntegrationTestManager testManager;
     private MobilePlatformTester platformTester;
     private GameBalanceManager balanceManager;
+    private FinalPolishManager polishManager;
+    private RequirementValidator requirementValidator;
+    private BuildPreparationManager buildPreparationManager;
     
     private Vector2 scrollPosition;
     private bool showTestResults = true;
     private bool showBalanceSettings = true;
     private bool showPlatformInfo = true;
+    private bool showPolishSettings = true;
+    private bool showRequirementValidation = true;
+    private bool showBuildPreparation = true;
     
     private string lastTestReport = "";
+    private string lastPolishReport = "";
+    private string lastValidationReport = "";
     
     [MenuItem("DungeonOwner/Integration Test Window")]
     public static void ShowWindow()
@@ -36,6 +45,9 @@ public class IntegrationTestWindow : EditorWindow
         testManager = FindObjectOfType<IntegrationTestManager>();
         platformTester = FindObjectOfType<MobilePlatformTester>();
         balanceManager = FindObjectOfType<GameBalanceManager>();
+        polishManager = FindObjectOfType<FinalPolishManager>();
+        requirementValidator = FindObjectOfType<RequirementValidator>();
+        buildPreparationManager = FindObjectOfType<BuildPreparationManager>();
     }
     
     private void OnGUI()
@@ -52,6 +64,27 @@ public class IntegrationTestWindow : EditorWindow
         // テスト実行ボタン
         DrawTestExecutionButtons();
         EditorGUILayout.Space();
+        
+        // 最終ポリッシュ設定
+        if (showPolishSettings)
+        {
+            DrawPolishSettings();
+            EditorGUILayout.Space();
+        }
+        
+        // 要件検証
+        if (showRequirementValidation)
+        {
+            DrawRequirementValidation();
+            EditorGUILayout.Space();
+        }
+        
+        // ビルド準備
+        if (showBuildPreparation)
+        {
+            DrawBuildPreparation();
+            EditorGUILayout.Space();
+        }
         
         // バランス調整設定
         if (showBalanceSettings)
@@ -85,6 +118,9 @@ public class IntegrationTestWindow : EditorWindow
         EditorGUILayout.Toggle("IntegrationTestManager", testManager != null);
         EditorGUILayout.Toggle("MobilePlatformTester", platformTester != null);
         EditorGUILayout.Toggle("GameBalanceManager", balanceManager != null);
+        EditorGUILayout.Toggle("FinalPolishManager", polishManager != null);
+        EditorGUILayout.Toggle("RequirementValidator", requirementValidator != null);
+        EditorGUILayout.Toggle("BuildPreparationManager", buildPreparationManager != null);
         EditorGUI.EndDisabledGroup();
         
         if (GUILayout.Button("コンポーネントを再検索"))
@@ -304,6 +340,27 @@ public class IntegrationTestWindow : EditorWindow
             balanceManager = balanceObj.AddComponent<GameBalanceManager>();
             Debug.Log("GameBalanceManagerを作成しました");
         }
+        
+        if (polishManager == null)
+        {
+            GameObject polishObj = new GameObject("FinalPolishManager");
+            polishManager = polishObj.AddComponent<FinalPolishManager>();
+            Debug.Log("FinalPolishManagerを作成しました");
+        }
+        
+        if (requirementValidator == null)
+        {
+            GameObject validatorObj = new GameObject("RequirementValidator");
+            requirementValidator = validatorObj.AddComponent<RequirementValidator>();
+            Debug.Log("RequirementValidatorを作成しました");
+        }
+        
+        if (buildPreparationManager == null)
+        {
+            GameObject buildObj = new GameObject("BuildPreparationManager");
+            buildPreparationManager = buildObj.AddComponent<BuildPreparationManager>();
+            Debug.Log("BuildPreparationManagerを作成しました");
+        }
     }
     
     private void LoadLatestTestReport()
@@ -341,6 +398,218 @@ public class IntegrationTestWindow : EditorWindow
             lastTestReport = $"テストレポートの読み込みに失敗しました: {e.Message}";
             Debug.LogError(lastTestReport);
         }
+    }
+    
+    private void DrawPolishSettings()
+    {
+        showPolishSettings = EditorGUILayout.Foldout(showPolishSettings, "最終ポリッシュ設定");
+        
+        if (!showPolishSettings) return;
+        
+        if (polishManager == null)
+        {
+            EditorGUILayout.HelpBox("FinalPolishManagerが見つかりません", MessageType.Warning);
+            return;
+        }
+        
+        EditorGUI.BeginDisabledGroup(!Application.isPlaying);
+        
+        if (GUILayout.Button("最終ポリッシュ実行", GUILayout.Height(25)))
+        {
+            polishManager.ExecuteManualPolish();
+        }
+        
+        EditorGUI.EndDisabledGroup();
+        
+        if (Application.isPlaying && polishManager != null)
+        {
+            var polishStatus = polishManager.GetPolishStatus();
+            
+            EditorGUILayout.LabelField("ポリッシュ進捗", EditorStyles.boldLabel);
+            
+            int completedTasks = 0;
+            int totalTasks = polishStatus.Count;
+            
+            foreach (var task in polishStatus)
+            {
+                string status = task.Value ? "完了" : "未完了";
+                EditorGUILayout.LabelField($"{task.Key}: {status}");
+                if (task.Value) completedTasks++;
+            }
+            
+            float progress = totalTasks > 0 ? (float)completedTasks / totalTasks : 0f;
+            EditorGUILayout.LabelField($"全体進捗: {completedTasks}/{totalTasks} ({progress:P0})");
+            
+            EditorGUILayout.Space();
+            if (GUILayout.Button("ポリッシュレポートを読み込み"))
+            {
+                LoadLatestPolishReport();
+            }
+        }
+        
+        if (!string.IsNullOrEmpty(lastPolishReport))
+        {
+            EditorGUILayout.Space();
+            EditorGUILayout.LabelField("最新のポリッシュレポート", EditorStyles.boldLabel);
+            EditorGUILayout.BeginVertical(EditorStyles.helpBox);
+            EditorGUILayout.TextArea(lastPolishReport, GUILayout.Height(150));
+            EditorGUILayout.EndVertical();
+        }
+    }
+    
+    private void DrawRequirementValidation()
+    {
+        showRequirementValidation = EditorGUILayout.Foldout(showRequirementValidation, "要件検証");
+        
+        if (!showRequirementValidation) return;
+        
+        if (requirementValidator == null)
+        {
+            EditorGUILayout.HelpBox("RequirementValidatorが見つかりません", MessageType.Warning);
+            return;
+        }
+        
+        EditorGUI.BeginDisabledGroup(!Application.isPlaying);
+        
+        if (GUILayout.Button("全要件検証実行", GUILayout.Height(25)))
+        {
+            requirementValidator.ExecuteManualValidation();
+        }
+        
+        EditorGUI.EndDisabledGroup();
+        
+        if (Application.isPlaying && requirementValidator != null)
+        {
+            float implementationRate = requirementValidator.GetImplementationRate();
+            EditorGUILayout.LabelField($"実装率: {implementationRate:F1}%");
+            
+            EditorGUILayout.Space();
+            if (GUILayout.Button("検証レポートを読み込み"))
+            {
+                LoadLatestValidationReport();
+            }
+        }
+        
+        if (!string.IsNullOrEmpty(lastValidationReport))
+        {
+            EditorGUILayout.Space();
+            EditorGUILayout.LabelField("最新の検証レポート", EditorStyles.boldLabel);
+            EditorGUILayout.BeginVertical(EditorStyles.helpBox);
+            EditorGUILayout.TextArea(lastValidationReport, GUILayout.Height(150));
+            EditorGUILayout.EndVertical();
+        }
+    }
+    
+    private void DrawBuildPreparation()
+    {
+        showBuildPreparation = EditorGUILayout.Foldout(showBuildPreparation, "ビルド準備");
+        
+        if (!showBuildPreparation) return;
+        
+        if (buildPreparationManager == null)
+        {
+            EditorGUILayout.HelpBox("BuildPreparationManagerが見つかりません", MessageType.Warning);
+            return;
+        }
+        
+        EditorGUI.BeginDisabledGroup(!Application.isPlaying);
+        
+        if (GUILayout.Button("ビルド準備実行", GUILayout.Height(25)))
+        {
+            buildPreparationManager.ExecuteBuildPreparation();
+        }
+        
+        EditorGUI.EndDisabledGroup();
+        
+        if (Application.isPlaying && buildPreparationManager != null)
+        {
+            var buildChecklist = buildPreparationManager.GetBuildChecklist();
+            bool isReadyForRelease = buildPreparationManager.IsReadyForRelease();
+            
+            EditorGUILayout.LabelField("ビルドチェックリスト", EditorStyles.boldLabel);
+            
+            foreach (var item in buildChecklist)
+            {
+                string status = item.Value ? "完了" : "未完了";
+                EditorGUILayout.LabelField($"{item.Key}: {status}");
+            }
+            
+            EditorGUILayout.Space();
+            EditorGUILayout.LabelField($"リリース準備状況: {(isReadyForRelease ? "準備完了" : "準備中")}");
+            
+            if (isReadyForRelease)
+            {
+                EditorGUILayout.HelpBox("リリース準備が完了しました！", MessageType.Info);
+            }
+        }
+    }
+    
+    private void LoadLatestPolishReport()
+    {
+        string reportPath = Application.persistentDataPath;
+        string[] reportFiles = Directory.GetFiles(reportPath, "polish_report_*.txt");
+        
+        if (reportFiles.Length == 0)
+        {
+            lastPolishReport = "ポリッシュレポートが見つかりません";
+            return;
+        }
+        
+        string latestFile = GetLatestFile(reportFiles);
+        
+        try
+        {
+            lastPolishReport = File.ReadAllText(latestFile);
+            Debug.Log($"ポリッシュレポートを読み込みました: {Path.GetFileName(latestFile)}");
+        }
+        catch (System.Exception e)
+        {
+            lastPolishReport = $"ポリッシュレポートの読み込みに失敗しました: {e.Message}";
+            Debug.LogError(lastPolishReport);
+        }
+    }
+    
+    private void LoadLatestValidationReport()
+    {
+        string reportPath = Application.persistentDataPath;
+        string[] reportFiles = Directory.GetFiles(reportPath, "requirement_validation_report_*.txt");
+        
+        if (reportFiles.Length == 0)
+        {
+            lastValidationReport = "検証レポートが見つかりません";
+            return;
+        }
+        
+        string latestFile = GetLatestFile(reportFiles);
+        
+        try
+        {
+            lastValidationReport = File.ReadAllText(latestFile);
+            Debug.Log($"検証レポートを読み込みました: {Path.GetFileName(latestFile)}");
+        }
+        catch (System.Exception e)
+        {
+            lastValidationReport = $"検証レポートの読み込みに失敗しました: {e.Message}";
+            Debug.LogError(lastValidationReport);
+        }
+    }
+    
+    private string GetLatestFile(string[] files)
+    {
+        string latestFile = files[0];
+        System.DateTime latestTime = File.GetLastWriteTime(latestFile);
+        
+        foreach (string file in files)
+        {
+            System.DateTime fileTime = File.GetLastWriteTime(file);
+            if (fileTime > latestTime)
+            {
+                latestFile = file;
+                latestTime = fileTime;
+            }
+        }
+        
+        return latestFile;
     }
     
     private void OnInspectorUpdate()
